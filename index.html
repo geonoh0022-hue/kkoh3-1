@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시험기간 이벤트 관리 · 반영 수정본</title>
+
+
+<style>
+  :root{
+    --bg:#1E3A2F;
+    --bg-panel:#193026;
+    --bg-panel-2:#16291F;
+    --chalk:#F5F1E8;
+    --chalk-dim:#AFC3B7;
+    --gold:#E8C468;
+    --coral:#E2937F;
+    --teal:#8FC2B4;
+    --line:rgba(245,241,232,0.18);
+    --line-strong:rgba(245,241,232,0.32);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 12% 18%, rgba(245,241,232,0.035) 0, transparent 45%),
+      radial-gradient(circle at 82% 68%, rgba(245,241,232,0.03) 0, transparent 50%),
+      var(--bg);
+    color:var(--chalk);
+    font-family:'Noto Sans KR', sans-serif;
+    min-height:100vh;
+    line-height:1.5;
+  }
+  .headline{font-family:'Gaegu', cursive;}
+  .wrap{
+    max-width:880px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+  }
+
+  /* Header */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    padding-bottom:20px;
+    border-bottom:1.5px dashed var(--line-strong);
+    margin-bottom:24px;
+    flex-wrap:wrap;
+  }
+  header h1{
+    font-size:34px;
+    margin:0 0 4px;
+    font-weight:700;
+    letter-spacing:0.5px;
+  }
+  header p{
+    margin:0;
+    color:var(--chalk-dim);
+    font-size:14px;
+  }
+  #resetAllBtn{
+    background:none;
+    border:1px solid var(--line-strong);
+    color:var(--chalk-dim);
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:14px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+    white-space:nowrap;
+  }
+  #resetAllBtn:hover{ border-color:var(--coral); color:var(--coral); }
+  .header-btns{
+    display:flex;
+    gap:8px;
+    flex-shrink:0;
+  }
+  #studentModeBtn{
+    background:var(--teal);
+    color:#16291F;
+    border:none;
+    font-size:12.5px;
+    font-weight:700;
+    padding:7px 14px;
+    border-radius:14px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+    white-space:nowrap;
+  }
+  #studentModeBtn:hover{ filter:brightness(1.08); }
+
+  /* Student entry screen */
+  .student-entry-wrap{
+    max-width:420px;
+    margin:40px auto;
+    padding:0 4px;
+  }
+  .se-desc{
+    color:var(--chalk-dim);
+    font-size:13.5px;
+    margin:0 0 24px;
+    line-height:1.6;
+  }
+  .student-entry-form{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .se-label{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-size:14px;
+    color:var(--chalk-dim);
+  }
+  .se-label select,
+  .se-label input{
+    background:var(--bg-panel);
+    border:1.5px dashed var(--line-strong);
+    color:var(--chalk);
+    padding:12px 14px;
+    border-radius:10px;
+    font-size:16px;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .se-label select:focus,
+  .se-label input:focus{ outline:2px solid var(--gold); border-style:solid; }
+  .se-subjects{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .se-submit{
+    background:var(--gold);
+    color:#1E3A2F;
+    border:none;
+    padding:14px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+    margin-top:4px;
+  }
+  .se-submit:hover{ filter:brightness(1.08); }
+  .se-confirm{
+    margin-top:16px;
+    padding:14px 16px;
+    background:rgba(143,194,180,0.16);
+    border:1.5px solid var(--teal);
+    color:var(--teal);
+    border-radius:10px;
+    font-size:15px;
+    font-weight:700;
+    text-align:center;
+  }
+
+  /* Roster */
+  .roster{
+    margin-bottom:28px;
+  }
+  .roster-label{
+    font-size:13px;
+    color:var(--chalk-dim);
+    margin-bottom:10px;
+    display:block;
+  }
+  .roster-input-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .roster-input-row input{
+    flex:1;
+    background:var(--bg-panel);
+    border:1.5px dashed var(--line-strong);
+    color:var(--chalk);
+    padding:10px 14px;
+    border-radius:10px;
+    font-size:15px;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .roster-input-row input:focus{ outline:2px solid var(--gold); border-style:solid; }
+  .roster-input-row button{
+    background:var(--gold);
+    color:#1E3A2F;
+    border:none;
+    padding:0 20px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .roster-input-row button:hover{ filter:brightness(1.08); }
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .chip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:var(--bg-panel);
+    border:1px solid var(--line-strong);
+    padding:6px 8px 6px 14px;
+    border-radius:999px;
+    font-size:14px;
+  }
+  .chip button{
+    background:none;
+    border:none;
+    color:var(--chalk-dim);
+    cursor:pointer;
+    font-size:15px;
+    line-height:1;
+    padding:2px 6px;
+    border-radius:50%;
+  }
+  .chip button:hover{ color:var(--coral); }
+  .empty-roster{ color:var(--chalk-dim); font-size:14px; }
+
+  /* Tabs */
+  .tabs{
+    display:flex;
+    gap:4px;
+    margin-bottom:20px;
+    border-bottom:1.5px dashed var(--line);
+    overflow-x:auto;
+  }
+  .tab-btn{
+    background:none;
+    border:none;
+    color:var(--chalk-dim);
+    font-family:'Gaegu', cursive;
+    font-size:20px;
+    font-weight:700;
+    padding:8px 16px 12px;
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    white-space:nowrap;
+  }
+  .tab-btn.active{
+    color:var(--gold);
+    border-bottom-color:var(--gold);
+  }
+  .tab-btn:hover:not(.active){ color:var(--chalk); }
+
+  .panel{
+    background:var(--bg-panel);
+    border:1.5px dashed var(--line-strong);
+    border-radius:14px;
+    padding:22px;
+  }
+  .panel + .panel{ margin-top:16px; }
+  .panel-title{
+    font-family:'Gaegu', cursive;
+    font-size:22px;
+    font-weight:700;
+    margin:0 0 4px;
+  }
+  .panel-sub{
+    color:var(--chalk-dim);
+    font-size:13.5px;
+    margin:0 0 18px;
+  }
+  .empty-state{
+    color:var(--chalk-dim);
+    font-size:14px;
+    padding:20px 0;
+    text-align:center;
+  }
+
+  /* Study (열품타) */
+  .progress-track{
+    background:var(--bg-panel-2);
+    border-radius:999px;
+    height:8px;
+    overflow:hidden;
+    margin-bottom:6px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--gold);
+    border-radius:999px;
+  }
+  .progress-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color:var(--chalk-dim);
+    margin-bottom:20px;
+  }
+  .study-row{
+    display:flex;
+    flex-direction:column;
+  }
+  .badge-trophy{ font-size:16px; }
+  .study-row{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding:14px;
+    border-radius:10px;
+    margin-bottom:8px;
+    background:var(--bg-panel-2);
+  }
+  .study-row.rank1{
+    background:rgba(232,196,104,0.14);
+    border:1px solid var(--gold);
+  }
+  .study-row-top{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .study-rank{
+    width:28px;
+    text-align:center;
+    font-family:'Gaegu', cursive;
+    font-size:18px;
+    color:var(--chalk-dim);
+    flex-shrink:0;
+  }
+  .study-row.rank1 .study-rank{ color:var(--gold); }
+  .study-name{ flex:1; font-size:15px; font-weight:500; }
+  .study-row.rank1 .study-name{ color:var(--gold); font-weight:700; }
+  .study-row-bottom{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+  }
+  .study-total{ font-size:13.5px; color:var(--chalk-dim); }
+  .study-total strong{ color:var(--chalk); font-size:15px; }
+  .study-row.rank1 .study-total strong{ color:var(--gold); }
+  .study-add-form{
+    display:flex;
+    gap:6px;
+  }
+  .study-add-form input{
+    width:130px;
+    background:var(--bg);
+    border:1px solid var(--line-strong);
+    color:var(--chalk);
+    padding:7px 10px;
+    border-radius:8px;
+    font-size:13.5px;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .study-add-form button{
+    background:var(--teal);
+    color:#16291F;
+    border:none;
+    padding:0 14px;
+    border-radius:8px;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .study-add-form button:hover{ filter:brightness(1.08); }
+  .study-row.not-joined{
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    background:transparent;
+    border:1px dashed var(--line);
+    opacity:0.8;
+  }
+  .row-actions{ display:flex; gap:8px; flex-shrink:0; }
+  .icon-btn-remove{
+    background:none;
+    border:1px solid var(--line-strong);
+    color:var(--chalk-dim);
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:13px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .icon-btn-remove:hover{ border-color:var(--coral); color:var(--coral); }
+  .divider-label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:var(--chalk-dim);
+    font-size:12.5px;
+    margin:18px 0 10px;
+  }
+  .divider-label::after{
+    content:'';
+    flex:1;
+    border-bottom:1px dashed var(--line-strong);
+  }
+  .excluded-toggle{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:var(--chalk-dim);
+    font-size:12.5px;
+    padding:12px 0 0;
+    cursor:pointer;
+    text-decoration:underline;
+    text-underline-offset:3px;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .excluded-toggle:hover{ color:var(--chalk); }
+  .excluded-list{ margin-top:10px; }
+  .excluded-list .study-row,
+  .excluded-list .planner-row{ opacity:0.6; }
+
+  /* Planner (학습 플래너) */
+  .planner-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 14px;
+    border-radius:10px;
+    margin-bottom:8px;
+    background:var(--bg-panel-2);
+  }
+  .planner-name{ font-size:15px; }
+  .planner-toggle{
+    border:1px solid var(--line-strong);
+    background:none;
+    color:var(--chalk-dim);
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:13px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .planner-toggle.joined{
+    background:var(--teal);
+    color:#16291F;
+    border-color:var(--teal);
+    font-weight:700;
+  }
+  .planner-count{
+    color:var(--teal);
+    font-weight:700;
+    font-family:'Gaegu', cursive;
+    font-size:18px;
+  }
+
+  /* Lotto (시험 로또) */
+  .lotto-table-wrap{ overflow-x:auto; }
+  table.lotto{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    min-width:680px;
+  }
+  table.lotto th{
+    text-align:center;
+    color:var(--chalk-dim);
+    font-weight:500;
+    font-size:12px;
+    padding:6px 4px;
+    border-bottom:1px dashed var(--line-strong);
+  }
+  table.lotto td{
+    padding:6px 4px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+  }
+  table.lotto .name-cell{
+    text-align:left;
+    font-weight:700;
+    padding-left:8px;
+    white-space:nowrap;
+  }
+  table.lotto tr.win1, table.lotto tr.win2{
+    background:rgba(232,196,104,0.12);
+  }
+  table.lotto input{
+    width:44px;
+    background:var(--bg);
+    border:1px solid var(--line-strong);
+    color:var(--chalk);
+    padding:5px 4px;
+    border-radius:6px;
+    text-align:center;
+    font-size:12.5px;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  table.lotto input.pred{ border-color:rgba(143,194,180,0.5); }
+  .subj-pair{ display:flex; flex-direction:column; gap:3px; align-items:center; }
+  .subj-pair-label{ font-size:9.5px; color:var(--chalk-dim); }
+  .diff-cell{ font-weight:700; }
+  .result-tag{
+    font-size:11px;
+    padding:3px 8px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .result-tag.win{ background:var(--gold); color:#1E3A2F; font-weight:700; }
+  .result-tag.pending{ color:var(--chalk-dim); }
+  .result-tag.invalid{ color:var(--coral); }
+  .lotto-note{
+    margin-top:14px;
+    font-size:12.5px;
+    color:var(--chalk-dim);
+  }
+  .lotto-diff-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 14px;
+    border-radius:10px;
+    margin-bottom:8px;
+    background:var(--bg-panel-2);
+  }
+  .lotto-diff-row.win{
+    background:rgba(232,196,104,0.14);
+    border:1px solid var(--gold);
+  }
+  .lotto-diff-rank{
+    width:28px;
+    text-align:center;
+    font-family:'Gaegu', cursive;
+    font-size:18px;
+    color:var(--chalk-dim);
+    flex-shrink:0;
+  }
+  .lotto-diff-row.win .lotto-diff-rank{ color:var(--gold); }
+  .lotto-diff-name{ flex:1; font-size:15px; font-weight:500; }
+  .lotto-diff-row.win .lotto-diff-name{ color:var(--gold); font-weight:700; }
+  .lotto-diff-value{
+    font-size:13.5px;
+    color:var(--chalk-dim);
+    text-align:right;
+  }
+  .lotto-diff-row.win .lotto-diff-value{ color:var(--gold); font-weight:700; }
+  .panel-title-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .panel-title-row .panel-title{ margin:0; }
+  .lock-btn{
+    background:none;
+    border:1px solid var(--line-strong);
+    color:var(--chalk-dim);
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:12.5px;
+    cursor:pointer;
+    flex-shrink:0;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .lock-btn:hover{ border-color:var(--coral); color:var(--coral); }
+  .lock-screen{
+    text-align:center;
+    padding:36px 16px;
+  }
+  .lock-desc{
+    color:var(--chalk-dim);
+    font-size:14px;
+    margin:0 0 16px;
+  }
+  .lock-form{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .lock-form input{
+    width:200px;
+    background:var(--bg);
+    border:1.5px dashed var(--line-strong);
+    color:var(--chalk);
+    padding:10px 14px;
+    border-radius:10px;
+    font-size:14px;
+    text-align:center;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .lock-form input:focus{ outline:2px solid var(--gold); border-style:solid; }
+  .lock-form button{
+    background:var(--gold);
+    color:#1E3A2F;
+    border:none;
+    padding:0 20px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .lock-reset{
+    display:block;
+    margin:14px auto 0;
+    background:none;
+    border:none;
+    color:var(--chalk-dim);
+    font-size:12px;
+    text-decoration:underline;
+    text-underline-offset:3px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .lock-reset:hover{ color:var(--chalk); }
+  .lock-success{
+    color:var(--teal);
+    font-size:13.5px;
+    font-weight:700;
+    margin:0 0 14px;
+  }
+  .change-pin-box{
+    margin-bottom:8px;
+  }
+  .change-pin-form input{
+    width:170px;
+  }
+  .pred-window-form{
+    display:flex;
+    gap:12px;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+  .pred-window-form .se-label{
+    flex:1;
+    min-width:140px;
+  }
+  .pred-window-form button{
+    background:var(--teal);
+    color:#16291F;
+    border:none;
+    padding:11px 18px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .pred-window-form button:hover{ filter:brightness(1.08); }
+  .pred-window-status{
+    color:var(--chalk-dim);
+    font-size:12.5px;
+    margin:0 0 20px;
+  }
+  .actual-entry-wrap{
+    max-width:420px;
+  }
+  .se-period-closed{
+    background:rgba(226,147,125,0.14);
+    border:1px solid var(--coral);
+    color:var(--coral);
+    padding:14px 16px;
+    border-radius:10px;
+    font-size:14px;
+    text-align:center;
+    margin-bottom:20px;
+  }
+  .se-mode-toggle{
+    display:flex;
+    gap:8px;
+    margin-bottom:20px;
+  }
+  .se-mode-btn{
+    flex:1;
+    background:var(--bg-panel);
+    border:1.5px dashed var(--line-strong);
+    color:var(--chalk-dim);
+    padding:11px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .se-mode-btn.active{
+    background:var(--gold);
+    color:#1E3A2F;
+    border-color:var(--gold);
+  }
+
+  @media (max-width:640px){
+    header h1{ font-size:28px; }
+    .panel{ padding:16px; }
+  }
+
+/* Paper & chalk */
+:root{--bg:#f4f2eb;--bg-panel:#fffefa;--bg-panel-2:#f3f4ef;--chalk:#263d33;--chalk-dim:#62736a;--gold:#9a6d20;--coral:#b34b37;--teal:#356e57;--line:#dce2d9;--line-strong:#c8d2c6}
+[hidden]{display:none!important}body{background:var(--bg);font-family:'Noto Sans KR','Malgun Gothic',system-ui,sans-serif}button,input,select{font-family:inherit!important}button{min-height:40px;transition:background .15s}button:focus-visible{outline:3px solid #b88a3a;outline-offset:3px}input,select{min-height:42px}button:disabled{opacity:.5;cursor:not-allowed}.headline,.panel-title,.tab-btn,.planner-count,.study-rank,.lotto-diff-rank{font-family:inherit}.wrap{max-width:1080px;padding:34px 24px 70px}header{background:#234e3c;color:#fffef7;border:0;border-radius:20px;padding:32px;margin-bottom:18px;position:relative}header h1{font-size:30px;letter-spacing:-1px}header p{color:#cbdacf;max-width:560px;font-size:13px;line-height:1.8}header h1:before{content:'OUR CLASS · STUDY DAYS';display:block;font-size:10px;letter-spacing:2.2px;color:#e5c582;margin-bottom:12px}.header-btns{flex-wrap:wrap}#studentModeBtn{background:#e6c981;color:#263d33;border-radius:8px}#resetAllBtn{color:#bd4c38;border:1px solid #d9b1a8;border-radius:8px}.panel{border:1px solid #dce2d9;border-radius:16px;padding:24px;box-shadow:0 3px 12px #263d3304}.panel-title{font-size:20px;letter-spacing:-.5px}.panel-sub{line-height:1.8;margin-top:8px}.tabs{border-bottom:1px solid #c8d2c6;gap:16px;margin:24px 0 20px}.tab-btn{font-size:15px;padding:12px 10px}.tab-btn.active{color:#285b43;border-color:#285b43}.tab-btn:hover:not(.active){color:#285b43}.roster{background:#fffefa;border:1px solid #dce2d9;border-radius:14px;padding:18px;margin:18px 0}.roster summary{cursor:pointer;font-weight:700}.roster-input-row{margin-top:14px}.roster input,.se-label input,.se-label select,.lock-form input{border-style:solid}.roster-input-row button,.lock-form button,.se-submit{background:#356e57;color:white}.chip{background:#f4f5f0;border-color:#e0e4dc;font-size:13px}.chip button{min-height:28px}.study-row,.planner-row,.lotto-diff-row{padding:16px;border:1px solid #e4e8e0;background:#fafbf7}.study-row.rank1,.lotto-diff-row.win{background:#fbf5e7;border-color:#d9c391}.planner-toggle.joined,.study-add-form button,.pred-window-form button{color:white;background:#356e57}.planner-toggle{border-radius:8px}.study-add-form input{width:160px;background:white}.progress-fill{background:#64836c}.progress-track{background:#e4e9df;height:7px}.progress-labels{margin-top:10px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.stat{padding:18px;background:#fffefa;border:1px solid #dce2d9;border-radius:12px}.stat span{display:block;font-size:12px;color:#62736a}.stat strong{display:block;font-size:27px;margin-top:9px;letter-spacing:-1px}.stat small{font-size:12px;font-weight:400;margin-left:5px}.utility{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:24px}.utility button,.soft{border:1px solid #ccd7cb;background:#fffefa;color:#355442;border-radius:8px;padding:8px 13px}.notice{font-size:12px;line-height:1.8;color:#62736a}.status{font-size:12px;color:#356e57;margin-left:auto}.settings{margin-top:18px;background:#fffefa;border:1px solid #dce2d9;border-radius:12px;padding:16px}.settings summary{cursor:pointer;font-size:13px;font-weight:700}.settings form{margin-top:16px}.settings input{padding:8px;border:1px solid #ccd7cb;border-radius:6px;background:white;color:#263d33}.settings label{font-size:12px;display:flex;flex-direction:column;gap:6px}.settings .line{display:flex;align-items:end;flex-wrap:wrap;gap:12px}.student-entry-wrap{max-width:560px;background:#fffefa;border:1px solid #dce2d9;border-radius:18px;padding:28px;margin:20px auto}.se-mode-btn.active{background:#356e57;color:white;border-color:#356e57}.se-mode-btn{border-style:solid}.se-confirm{color:#285b43;background:#eaf2e9;border-color:#a5bfa1}.result-tag.win{background:#efe0b8;color:#6c4b16}table.lotto input{width:65px;font-size:15px;background:#fffefa}table.lotto th{padding:12px 5px}table.lotto td{padding:12px 5px}table.lotto .name-cell{position:sticky;left:0;background:#fffefa;z-index:1}table.lotto{min-width:680px}.lock-reset{color:#62736a}.lock-screen{background:#f4f6f0;border-radius:12px}.record-note{font-size:12px;color:#62736a;margin-top:9px}.planner-row{flex-wrap:wrap;gap:12px}.plan-details{flex-basis:100%;border-top:1px solid #dde4da;padding-top:10px}.plan-details summary{font-size:12px;cursor:pointer}.plan-date{display:inline-flex;align-items:center;font-size:12px;background:#eaf1e6;border-radius:6px;padding:3px 5px;margin:6px 5px 0 0}.plan-date button{min-height:28px;border:0;background:none;color:#8c4738}.row-actions{flex-wrap:wrap}.lock-form input{max-width:100%}
+@media(max-width:640px){.wrap{padding:16px 12px 40px}header{padding:24px 20px;border-radius:14px}header h1{font-size:26px}.stats{grid-template-columns:repeat(2,1fr);gap:8px}.stat{padding:15px}.stat strong{font-size:24px}.tabs{gap:0}.tab-btn{font-size:14px;padding:12px 9px}.panel{padding:16px}.panel-title-row{flex-wrap:wrap}.study-row-top{gap:8px}.study-add-form{width:100%}.study-add-form input{flex:1;min-width:0;width:100px}.student-entry-wrap{padding:20px 16px}.roster-input-row input{width:0;min-width:0}.status{width:100%;margin:5px 0}.planner-row .row-actions{gap:5px}.lock-form button{padding:9px 16px}}
+
+.exam-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}.exam-wide{grid-column:1/-1}.exam-grid textarea{width:100%;resize:vertical;border:1px solid var(--line-strong);background:var(--bg-panel);color:var(--chalk);border-radius:10px;padding:12px;font:inherit;font-size:16px;box-sizing:border-box}.exam-grid input{min-width:0;width:100%}.exam-card{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:16px;background:#fafbf7;overflow-wrap:anywhere}.exam-card h4{margin:0;font-size:17px}.exam-card .notice{margin:8px 0}.exam-text{white-space:pre-wrap;line-height:1.8;margin:10px 0}.exam-card .row-actions{margin-top:14px}
+@media(max-width:640px){.exam-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tabs{gap:0}.tab-btn{padding:12px 8px;font-size:13px}#seTitle{font-size:24px!important}}
+.timetable-wrap{overflow-x:auto;margin-top:16px}.timetable{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}.timetable caption{text-align:left;color:var(--chalk-dim);margin-bottom:10px;font-size:12px}.timetable th,.timetable td{border:1px solid var(--line-strong);padding:15px 12px;text-align:center;min-width:105px;white-space:nowrap}.timetable th{background:#eaf0e6}.timetable thead th:first-child,.timetable tbody th{position:sticky;left:0;z-index:2;background:#eaf0e6;box-shadow:1px 0 0 var(--line-strong)}.timetable thead th:first-child{z-index:3}.timetable th,.timetable td{border-right:0;border-bottom:0}.timetable tr>:last-child{border-right:1px solid var(--line-strong)}.timetable tbody tr:last-child>*{border-bottom:1px solid var(--line-strong)}.timetable td{background:#fffefa}.timetable .conflict{color:#a13724;background:#fff0e6}
+.dday-card{display:flex;flex-direction:column;gap:8px;padding:22px;border-radius:14px;background:#234e3c;color:#fff9e8;margin-bottom:24px;text-align:center}.dday-card strong{font-size:42px;letter-spacing:-1px;color:#e6c981}.dday-card span{font-size:14px}
+.context-settings{margin:0 0 18px}.context-settings select{min-height:42px;border:1px solid var(--line-strong);border-radius:6px;background:white;color:var(--chalk);padding:8px;font-size:15px}#schoolYear{width:120px}
+.timetable-actions{justify-content:center;margin-top:10px}.timetable-actions button{min-height:32px;font-size:12px;padding:4px 9px}
+fieldset.line{border:0;padding:0;margin:0;min-width:0;width:100%}fieldset:disabled{opacity:.6}#teacherAdminError{color:#ae4231}
+
+.nonparticipant-group{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.nonparticipant-group>summary{padding:10px 0;color:var(--chalk-dim);font-size:14px;font-weight:700;cursor:pointer}
+.nonparticipant-group[open]>summary{margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="teacherView">
+
+  <header>
+    <div>
+      <h1 class="headline">시험기간 이벤트</h1><span class="notice" style="color:#e6c981">통합 로그인 · 백업 개선본</span>
+      <p>열품타 · 학습 플래너 · 시험 로또, 세 가지 이벤트를 한 곳에서 관리해요</p>
+    </div>
+    <div class="header-btns">
+      <button id="studentModeBtn">학생 입력 화면 열기</button>
+      
+    </div>
+  </header>
+
+  <section class="settings"><div class="panel-title-row"><h2 class="panel-title">교사 관리</h2><button id="teacherAdminLock" type="button" class="soft" hidden>관리 잠그기</button></div><p id="teacherAdminStatus" class="notice" role="status"></p><form id="teacherAdminForm" class="lock-form"><input id="teacherAdminPin" type="password" autocomplete="current-password" placeholder="교사 비밀번호" required aria-label="교사 비밀번호"><button id="teacherAdminSubmit">잠금 해제</button></form><p id="teacherAdminError" class="notice" role="alert"></p></section>
+<section class="settings context-settings"><form id="contextForm" class="line"><fieldset id="contextFields" class="line" disabled><label>학년도<input id="schoolYear" type="number" min="2000" max="2200" step="1" required list="savedYears"></label><datalist id="savedYears"></datalist><label>시험 선택<select id="examSession"><option value="1-1">1학기 1차고사</option><option value="1-2">1학기 2차고사</option><option value="2-1">2학기 1차고사</option><option value="2-2">2학기 2차고사</option></select></label><button class="soft">선택 적용</button></fieldset></form><p id="activeContext" class="notice" role="status"></p><p class="notice">학생 명단은 같은 학년도 안에서 공통으로 사용하며, 참여·점수·시간표·D-day는 시험별로 저장됩니다. 새 학년도는 빈 명단으로 시작합니다.</p></section><div id="summary" class="stats"></div><p class="notice">이 기기의 브라우저에 저장됩니다. 다른 PC·휴대폰과 자동으로 연동되지 않습니다.</p><details class="roster"><summary>학생 명단 관리 <span id="rosterCount"></span></summary>
+    <span class="roster-label">선택한 학년도 학생 명단 (해당 학년도의 네 시험에서 공통으로 사용돼요)</span>
+    <div class="roster-input-row" id="rosterEdit" hidden>
+      <input type="text" id="rosterInput" placeholder="이름 여러 개를 쉼표로 구분해 입력">
+      <button id="rosterAddBtn">추가</button>
+    </div>
+    <div class="chips" id="rosterChips"></div>
+  </details>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="study">열품타</button>
+    <button class="tab-btn" data-tab="planner">학습 플래너</button>
+    <button class="tab-btn" data-tab="lotto">시험 로또</button>
+    <button class="tab-btn" data-tab="exam">시험 안내</button>
+  </div>
+
+  <!-- 열품타 -->
+  <section class="tab-panel" data-tab="study">
+    <div class="panel">
+      <h2 class="panel-title">열품타 이벤트</h2>
+      <p class="panel-sub"><span id="studyPeriodLabel"></span> · 자신의 속도로 꾸준히! 기록은 분 단위로 추가하거나 수정할 수 있어요.</p>
+      <details class="settings"><summary>열품타 이벤트 기간 설정</summary><form id="eventSettings" class="line"><label>시작일<input id="eventStart" type="date" required></label><label>종료일<input id="eventEnd" type="date" required></label><button class="soft">기간 저장</button></form></details><div id="studyProgressWrap" style="margin-top:20px"></div>
+      <div id="studyList"></div>
+    </div>
+  </section>
+
+  <!-- 학습 플래너 -->
+  <section class="tab-panel" data-tab="planner" hidden>
+    <div class="panel">
+      <h2 class="panel-title">학습 플래너 이벤트</h2>
+      <p class="panel-sub">전원 참여는 아니에요. 1학기에 참여했던 학생이나 희망하는 학생이 담임 선생님에게 개인톡으로 신청해요.</p>
+      <div id="plannerList"></div>
+    </div>
+  </section>
+
+  <!-- 시험 로또 -->
+  <section class="tab-panel" data-tab="lotto" hidden>
+    <div class="panel">
+      <div class="panel-title-row">
+        <h2 class="panel-title">시험 로또 이벤트</h2>
+        <div class="header-btns">
+          <button id="lottoChangePinBtn" class="lock-btn" hidden>비밀번호 변경</button>
+          <button id="lottoLockBtn" class="lock-btn" hidden>🔒 잠그기</button>
+        </div>
+      </div>
+      <p class="panel-sub">시험 안내에 등록한 과목의 예상 점수를 먼저 받고, 시험 후 실제 점수와 비교해 점수차가 적은 순서로 비교해요. 공동 순위를 적용하고, 2위 이내를 표시해요</p>
+
+      <div class="divider-label">점수차 순위 (교실 공개 시 실제 점수는 표시하지 않아요)</div>
+      <div id="lottoDiffBoard"></div>
+
+      <div class="divider-label">과목별 점수 입력</div>
+      <div id="lottoLockScreen" class="lock-screen"></div>
+
+      <div id="lottoContent" hidden>
+        <div id="lottoChangePinBox" class="change-pin-box" hidden>
+          <div class="divider-label">비밀번호 변경</div>
+          <form id="lottoChangePinForm" class="lock-form change-pin-form">
+            <input type="password" id="lottoChangePinInput" placeholder="새 비밀번호" autocomplete="off">
+            <input type="text" id="lottoChangeQuestion" placeholder="비밀번호를 잊었을 때 물어볼 질문">
+            <input type="text" id="lottoChangeAnswer" placeholder="질문에 대한 답">
+            <button type="submit">저장</button>
+          </form>
+        </div>
+
+        <div class="divider-label">예상 점수 입력 기간 설정</div>
+        <form id="predWindowForm" class="pred-window-form">
+          <label class="se-label">시작일 <input type="date" id="predWindowStart"></label>
+          <label class="se-label">종료일 <input type="date" id="predWindowEnd"></label>
+          <button type="submit">저장</button>
+        </form>
+        <p id="predWindowStatus" class="pred-window-status"></p>
+
+        <div class="divider-label">과목별 점수</div>
+        <div class="lotto-table-wrap">
+          <table class="lotto" id="lottoTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="lotto-note">예상 점수는 과목별 40점 이상만 유효해요. 40점 미만이 하나라도 있으면 해당 학생은 무효 처리돼요.</p>
+      </div>
+    </div>
+  </section>
+
+<section class="tab-panel" data-tab="exam" hidden>
+  <div class="panel">
+    <h2 class="panel-title">시험 안내</h2>
+    <p class="panel-sub">등록한 과목이 시험 로또에 자동 반영됩니다. 자기주도학습은 시간표에만 표시되며 여러 교시에 등록할 수 있어요. 날짜와 교시를 입력하면 시간표가 만들어져요.</p>
+    <div class="row-actions"><button id="examLockBtn" class="soft" hidden>시험 안내 잠그기</button></div>
+    <div id="examGate" class="lock-screen"><p class="notice">상단 교사 관리에서 로그인하면 시험 안내와 D-day를 관리할 수 있습니다.</p><button type="button" id="examGoLogin" class="soft">교사 로그인으로 이동</button></div>
+    <form id="examForm" class="exam-grid" hidden>
+      <label class="se-label">과목 이름<input id="examSubject" maxlength="40" required placeholder="예: 국어" list="subjectOptions"></label>
+      <datalist id="subjectOptions"><option value="국어"><option value="영어"><option value="수학"><option value="과학"><option value="사회"><option value="역사"><option value="도덕"><option value="기술·가정"><option value="자기주도학습"></datalist>
+      <label class="se-label">시험 날짜<input id="examDate" type="date"></label>
+      <label class="se-label">교시<input id="examPeriod" maxlength="20" placeholder="예: 1교시"></label>
+      <label class="se-label exam-wide">시험 범위<textarea id="examRange" rows="3" maxlength="3000" placeholder="예: 교과서 35~78쪽, 학습지 1~4번"></textarea></label>
+      <label class="se-label exam-wide">준비물·안내<textarea id="examNote" rows="2" maxlength="1000" placeholder="예: 컴퓨터용 사인펜, 수정테이프"></textarea></label>
+      <div class="exam-wide row-actions"><button type="submit" id="examSave" class="soft">과목 추가</button><button type="button" id="examCancel" class="soft" hidden>수정 취소</button></div>
+      <p class="exam-wide notice" id="examFeedback" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+<details id="ddaySettings" class="settings" hidden><summary>학생 화면 시험 D-day 설정</summary><form id="ddayForm" class="line"><label>시험 이름<input id="ddayTitle" maxlength="60" placeholder="예: 2학기 1차고사"></label><label>시험 시작일<input id="ddayDate" type="date" required></label><button class="soft">D-day 저장</button><button type="button" class="soft" id="ddayClear">표시 해제</button></form><p class="notice" id="ddayFeedback" role="status">시험 시작일을 기준으로 학생 화면에 남은 날짜를 표시합니다.</p></details>
+  <div class="panel"><h3 class="panel-title">시험 시간표</h3><div id="examTimetable" class="timetable-wrap"></div></div>
+  <div class="panel"><h3 class="panel-title">과목별 시험 범위 <span id="examCount"></span></h3><div id="examList"></div></div>
+</section>
+
+
+<div class="utility"><button id="backupBtn">기록 백업</button><button id="restoreBtn">백업 불러오기</button><input type="file" id="restoreFile" accept=".json,application/json" hidden><button id="resetAllBtn">현재 시험 기록 초기화</button><span id="saveStatus" class="status" role="status" aria-live="polite">이 기기에 자동 저장</span></div>
+<section id="backupPanel" class="panel" hidden><h2 class="panel-title">전체 기록 백업</h2><p class="notice" id="backupStatus" role="status"></p><div class="row-actions"><button type="button" id="backupDownload" class="soft">JSON 파일 내려받기</button><button type="button" id="backupCopy" class="soft">백업 내용 복사</button><button type="button" id="backupClose" class="soft">닫기</button></div><label class="se-label" style="margin-top:14px">백업 내용<textarea id="backupText" readonly rows="8" spellcheck="false" style="width:100%;font-size:12px"></textarea></label><p class="notice">파일이 내려받아지지 않으면 내용을 복사해 메모장에 붙여 넣고, 파일 형식을 ‘모든 파일’로 선택하여 시험기록.json으로 저장하세요. 이름과 점수가 포함되므로 개인적으로 보관해주세요.</p></section>
+<p class="notice">교사용 기기에서 관리하고, 학생 입력은 선생님이 함께 확인해주세요. 화면 잠금은 표시를 가리는 기능이며 서버 로그인이나 데이터 암호화 기능은 아닙니다. 백업 파일에는 이름과 점수가 포함됩니다.</p>
+</div><!-- /teacherView -->
+
+<div id="studentView" hidden>
+  <div class="student-entry-wrap"><p id="studentContext" class="notice"></p><div id="studentDday" class="dday-card" hidden aria-live="polite"></div>
+    <h1 class="headline" id="seTitle" style="font-size:28px; margin-bottom:6px;">시험 로또 점수 입력</h1>
+    <p class="notice">선생님 기기에서 함께 입력하는 화면입니다. 본인 인증 기능은 없습니다.</p><p class="se-desc" id="seDesc">이름을 선택하고 등록된 시험 과목의 예상 점수를 입력해주세요. (각 과목 40점 이상이어야 유효해요)</p>
+
+    <div class="se-mode-toggle">
+      <button type="button" class="se-mode-btn active" data-mode="pred">예상 점수 입력</button>
+      <button type="button" class="se-mode-btn" data-mode="actual">실제 점수 입력</button>
+    </div>
+
+    <p id="sePeriodClosed" class="se-period-closed" hidden></p>
+
+    <form id="studentEntryForm" class="student-entry-form">
+      <label class="se-label">
+        이름
+        <select id="seNameSelect" required></select>
+      </label>
+      <div class="se-subjects" id="studentScoreFields"></div>
+      <button type="submit" class="se-submit">제출하기</button>
+    </form>
+    <p id="seConfirm" class="se-confirm" hidden></p>
+
+    <details class="settings"><summary>시험 시간표·범위 보기</summary><div id="studentTimetable" class="timetable-wrap"></div><div id="studentExamList"></div></details>
+    <button type="button" id="backToTeacherBtn" class="lock-reset" style="margin-top:32px;">선생님 화면으로 돌아가기</button>
+  </div>
+</div>
+
+
+
+<script>
+(function(){
+  const STORAGE_KEY = 'examPeriodEventsData_v1';
+  const DATABASE_KEY='examPeriodEventsByYear_v3';
+  const SESSION_LABELS={'1-1':'1학기 1차고사','1-2':'1학기 2차고사','2-1':'2학기 1차고사','2-2':'2학기 2차고사'};
+  let SUBJECTS = [];
+  const legacySubjects={영어:'eng',수학:'math',과학:'sci',역사:'hist'};
+  function subjectKey(name){return (Object.hasOwn(legacySubjects,name)?legacySubjects[name]:null)||'sub_'+Array.from(name).map(c=>c.codePointAt(0).toString(16)).join('_');}
+
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return { students: [], lottoPredWindow: { start:'', end:'' } };
+      const parsed = JSON.parse(raw);
+      if(!Array.isArray(parsed.students)) return { students: [], lottoPredWindow: { start:'', end:'' } };
+      if(!parsed.lottoPredWindow) parsed.lottoPredWindow = { start:'', end:'' };
+      return parsed;
+    }catch(e){
+      return { students: [], lottoPredWindow: { start:'', end:'' } };
+    }
+  }
+
+  function saveState(){
+    syncSubjects();
+    try{
+      commitCurrent();localStorage.setItem(DATABASE_KEY, JSON.stringify(database));
+    document.getElementById('saveStatus').textContent = '저장됨 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    }catch(e){ document.getElementById('saveStatus').textContent='저장 실패 · 기록 백업을 눌러주세요'; alert('브라우저에 저장하지 못했습니다. 기록 백업으로 보관해주세요.');return false; }
+    renderSummary();return true;
+  }
+
+  function makeStudent(name){
+    const lotto = {};
+    SUBJECTS.forEach(s => { lotto[s.key] = { pred:'', actual:'' }; });
+    return {
+      id: 's_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      name: name,
+      studyJoined: false,
+      studyExcluded: false,
+      studyMinutes: '',
+      plannerJoined: false,
+      plannerExcluded: false,
+      lotto: lotto
+    };
+  }
+
+  let database=loadDatabase();
+  let state=openSession(database.activeYear,database.activeExam);
+  function emptySession(){return {students:[],exams:[],lottoPredWindow:{start:'',end:''}};}
+  function loadDatabase(){
+    const saved=localStorage.getItem(DATABASE_KEY);
+    if(saved){const parsed=JSON.parse(saved);if(parsed.version!==3||!parsed.years||!Object.hasOwn(SESSION_LABELS,parsed.activeExam))throw Error('학년도 저장 데이터 형식 오류');return parsed;}
+    const previous=loadState();const date=previous.examDday?.date||previous.eventPeriod?.start||new Date().toISOString().slice(0,10);
+    const year=date.slice(0,4);const session=Number(date.slice(5,7))<8?'1-1':'2-1';
+    return {version:3,activeYear:year,activeExam:session,years:{[year]:{roster:previous.students.map(s=>({id:s.id,name:s.name})),sessions:{[session]:previous}}}};
+  }
+  function openSession(year,exam){
+    if(!database.years[year])database.years[year]={roster:[],sessions:{}};
+    const bucket=database.years[year];if(!bucket.sessions[exam])bucket.sessions[exam]=emptySession();
+    const entry=bucket.sessions[exam];entry.students=bucket.roster.map(r=>entry.students.find(s=>s.id===r.id)||Object.assign(makeStudent(r.name),{id:r.id}));return entry;
+  }
+  function commitCurrent(){
+    const bucket=database.years[database.activeYear];bucket.sessions[database.activeExam]=state;
+    bucket.roster=state.students.map(s=>({id:s.id,name:s.name}));
+    Object.values(bucket.sessions).forEach(entry=>{entry.students=bucket.roster.map(r=>{const s=entry.students.find(x=>x.id===r.id)||Object.assign(makeStudent(r.name),{id:r.id});s.name=r.name;return s;});});
+  }
+  function contextLabel(){return database.activeYear+'학년도 '+SESSION_LABELS[database.activeExam];}
+  function renderContext(){
+    document.getElementById('schoolYear').value=database.activeYear;document.getElementById('examSession').value=database.activeExam;
+    document.getElementById('savedYears').innerHTML=Object.keys(database.years).sort().map(y=>'<option value="'+y+'">').join('');
+    document.getElementById('activeContext').textContent='현재 선택: '+contextLabel();document.getElementById('studentContext').textContent=contextLabel();
+  }
+
+  if(!Array.isArray(state.exams)){
+    state.exams=Object.entries(legacySubjects).filter(([name,key])=>state.students.some(s=>s.lotto?.[key]&&['pred','actual'].some(f=>s.lotto[key][f]!==''&&s.lotto[key][f]!=null))).map(([subject,key],i)=>({id:'legacy_'+i,subject,subjectKey:key,date:'',period:'',range:'',note:''}));
+  }
+  syncSubjects();
+  function isSelfStudy(name){return String(name||'').replace(/\s/g,'')==='자기주도학습';}
+  function syncSubjects(){
+    const seen=new Set();SUBJECTS=[];
+    (state.exams||[]).forEach(e=>{if(isSelfStudy(e.subject))return;e.subjectKey=e.subjectKey||subjectKey(e.subject);if(!seen.has(e.subjectKey)){seen.add(e.subjectKey);SUBJECTS.push({key:e.subjectKey,label:e.subject});}});
+    state.students.forEach(s=>{s.lotto=s.lotto||{};SUBJECTS.forEach(x=>{if(!s.lotto[x.key])s.lotto[x.key]={pred:'',actual:''};});});
+  }
+
+  state.students.forEach(s => {
+    if(typeof s.studyJoined === 'undefined') s.studyJoined = false;
+    if(typeof s.studyExcluded === 'undefined') s.studyExcluded = false;
+    if(typeof s.plannerExcluded === 'undefined') s.plannerExcluded = false;
+  });
+  const notJoinedOpen = {study:false, planner:false};
+  function makeNotJoinedGroup(kind, count){
+    const group = document.createElement('details');
+    group.className = 'nonparticipant-group';
+    group.open = notJoinedOpen[kind];
+    const summary = document.createElement('summary');
+    summary.textContent = `미참여 학생 (${count}명)`;
+    group.appendChild(summary);
+    group.addEventListener('toggle', () => {if(group.isConnected)notJoinedOpen[kind] = group.open;});
+    return group;
+  }
+  let studyExcludedOpen = false;
+  let plannerExcludedOpen = false;
+  let teacherAdminUnlocked = false;
+  let lottoJustSetPin = false;
+  const LOTTO_PIN_KEY = 'examLottoPin_v1';
+  const LOTTO_Q_KEY = 'examLottoQuestion_v1';
+  const LOTTO_A_KEY = 'examLottoAnswer_v1';
+
+  function restoreFocus(inputEl){
+    if(!inputEl) return;
+    try{
+      inputEl.focus();
+      if(inputEl.type !== 'number'){
+        inputEl.selectionStart = inputEl.selectionEnd = inputEl.value.length;
+      }
+    }catch(e){ /* some input types don't support selection; ignore */ }
+  }
+
+  // ---------- Roster ----------
+  const rosterInput = document.getElementById('rosterInput');
+  const rosterAddBtn = document.getElementById('rosterAddBtn');
+  const rosterChips = document.getElementById('rosterChips');
+
+  function addStudent(){
+    if(!requireTeacherAdmin())return;
+    const name = rosterInput.value.trim();
+    if(!name) return;
+    const names=name.split(/[,\n]+/).map(n=>n.trim()).filter(Boolean);
+    names.forEach(n=>{if(!state.students.some(s=>s.name===n))state.students.push(makeStudent(n));});
+    rosterInput.value = '';
+    saveState();
+    renderAll();
+  }
+
+  function removeStudent(id){
+    if(!requireTeacherAdmin())return;
+    if(!confirm('선택한 학년도의 모든 시험에서 이 학생과 연결된 기록을 삭제할까요?'))return;
+    state.students = state.students.filter(s => s.id !== id);
+    saveState();
+    renderAll();
+  }
+
+  rosterAddBtn.addEventListener('click', addStudent);
+  rosterInput.addEventListener('keydown', e => {
+    if(e.key === 'Enter') addStudent();
+  });
+
+  function renderRoster(){
+    rosterChips.innerHTML = '';
+    if(state.students.length === 0){
+      const p = document.createElement('p');
+      p.className = 'empty-roster';
+      p.textContent = '아직 등록된 학생이 없어요. 이름을 입력해 추가해보세요.';
+      rosterChips.appendChild(p);
+      return;
+    }
+    state.students.forEach(s => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = s.name;
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '×';
+      delBtn.setAttribute('aria-label', s.name + ' 삭제');
+      delBtn.addEventListener('click', () => removeStudent(s.id));
+      chip.appendChild(nameSpan);
+      if(teacherAdminUnlocked)chip.appendChild(delBtn);
+      rosterChips.appendChild(chip);
+    });
+  }
+
+  // ---------- Tabs ----------
+  const PROTECTED_TABS = ['lotto'];
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const prevActive = document.querySelector('.tab-btn.active');
+      const prevTab = prevActive ? prevActive.dataset.tab : null;
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.tab;
+      tabPanels.forEach(p => {
+        p.hidden = (p.dataset.tab !== target);
+      });
+
+      if(target === 'exam')renderExams();
+      if(target === 'lotto'){
+        renderLottoGate();
+      }
+    });
+  });
+
+  // ---------- Study (열품타) ----------
+  const studyProgressWrap = document.getElementById('studyProgressWrap');
+  const studyList = document.getElementById('studyList');
+
+  function dayNumber(value){return Date.parse(value+'T00:00:00Z')/86400000;}
+  function calendarStatus(start,end,today=localDate()){
+    const a=dayNumber(start),b=dayNumber(end),n=dayNumber(today),total=b-a+1;
+    if(n<a)return {pct:0,text:'이벤트 시작 전'};
+    if(n>b)return {pct:100,text:'이벤트 종료'};
+    return {pct:Math.round((n-a+1)/total*100),text:(n-a+1)+'일째 / 총 '+total+'일'};
+  }
+  function renderStudyProgress(){
+    const period=state.eventPeriod;
+    if(!period?.start||!period?.end){document.getElementById('studyPeriodLabel').textContent='이벤트 기간 미설정';studyProgressWrap.innerHTML='<p class="notice">위에서 시작일과 종료일을 설정하면 진행도가 표시됩니다.</p>';return;}
+    document.getElementById('studyPeriodLabel').textContent=period.start+' ~ '+period.end;
+    const info=calendarStatus(period.start,period.end);
+    studyProgressWrap.innerHTML=`<div class="progress-labels"><span>${info.text}</span><strong>${info.pct}%</strong></div><div class="progress-track" role="progressbar" aria-label="열품타 기간 진행도" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${info.pct}"><div class="progress-fill" style="width:${info.pct}%"></div></div><div class="progress-labels"><span>${period.start}</span><span>${period.end}</span></div><p class="notice">시작일과 종료일을 포함한 전체 기간 중 오늘까지의 일수 기준입니다.</p>`;
+  }
+  function renderDday(){
+    const card=document.getElementById('studentDday');const config=state.examDday;
+    card.replaceChildren();card.hidden=!config?.date;if(card.hidden)return;
+    const diff=dayNumber(config.date)-dayNumber(localDate());
+    const title=document.createElement('span');title.textContent=config.title||contextLabel();
+    const big=document.createElement('strong');big.textContent=diff>0?'D-'+diff:diff===0?'D-DAY':'D+'+Math.abs(diff);
+    const date=document.createElement('span');date.textContent=config.date+(diff===0?' · 오늘 시험 시작':diff<0?' · 시험 시작일 기준':' · 시험 시작일까지');
+    card.append(title,big,date);
+  }
+  function loadDateSettings(){
+    document.getElementById('eventStart').value=state.eventPeriod?.start||'';document.getElementById('eventEnd').value=state.eventPeriod?.end||'';
+    document.getElementById('ddayTitle').value=state.examDday?.title||contextLabel();document.getElementById('ddayDate').value=state.examDday?.date||'';
+  }
+
+  function toggleStudyJoined(id){
+    const student = state.students.find(x => x.id === id);
+    student.studyJoined = !student.studyJoined;
+    saveState();
+    renderStudy();
+  }
+
+  function excludeFromStudy(id){
+    const student = state.students.find(x => x.id === id);
+    student.studyExcluded = true;
+    saveState();
+    renderStudy();
+  }
+
+  function restoreToStudy(id){
+    const student = state.students.find(x => x.id === id);
+    student.studyExcluded = false;
+    saveState();
+    renderStudy();
+  }
+
+  function formatMinutes(mins){
+    const m = Number(mins) || 0;
+    const h = Math.floor(m / 60);
+    const r = m % 60;
+    if(h === 0) return `${r}분`;
+    if(r === 0) return `${h}시간`;
+    return `${h}시간 ${r}분`;
+  }
+
+  function renderStudy(){
+    studyList.innerHTML = '';
+    if(state.students.length === 0){
+      studyList.innerHTML = '<p class="empty-state">학생을 먼저 추가해주세요.</p>';
+      return;
+    }
+
+    const visible = state.students.filter(s => !s.studyExcluded);
+    const excluded = state.students.filter(s => s.studyExcluded);
+    const joined = visible.filter(s => s.studyJoined);
+    const notJoined = visible.filter(s => !s.studyJoined);
+
+    const sorted = [...joined].sort((a,b) => (Number(b.studyMinutes)||0) - (Number(a.studyMinutes)||0));
+    const topVal = sorted.length ? (Number(sorted[0].studyMinutes) || 0) : 0;
+
+    if(sorted.length > 0){
+      const countLabel = document.createElement('p');
+      countLabel.className = 'planner-count';
+      countLabel.style.marginBottom = '14px';
+      countLabel.textContent = `참여자 ${sorted.length}명`;
+      studyList.appendChild(countLabel);
+
+      sorted.forEach((s, idx) => {
+        const rank=1+sorted.filter(x=>Number(x.studyMinutes)>Number(s.studyMinutes||0)).length;
+        const isTop = (Number(s.studyMinutes) === topVal && topVal > 0);
+        const row = document.createElement('div');
+        row.className = 'study-row' + (isTop ? ' rank1' : '');
+        row.innerHTML = `
+          <div class="study-row-top">
+            <div class="study-rank">${isTop ? '<span class="badge-trophy">🏆</span>' : rank}</div>
+            <div class="study-name">${escapeHtml(s.name)}</div>
+            <button class="planner-toggle joined" data-role="toggle">참여 중</button>
+          </div>
+          <div class="study-row-bottom">
+            <div class="study-total">누적 <strong>${formatMinutes(s.studyMinutes)}</strong></div>
+            <form class="study-add-form" data-role="add-form">
+              <input type="number" min="0" step="1" aria-label="추가할 공부 시간(분)" placeholder="추가할 시간(분)" data-role="add-input">
+              <button type="submit">추가</button><button type="button" data-role="correct">수정</button>
+            </form>
+          </div>
+        `;
+        row.querySelector('[data-role="toggle"]').addEventListener('click', () => toggleStudyJoined(s.id));
+        row.querySelector('[data-role="correct"]').addEventListener('click',()=>{
+          const value=prompt('누적 공부 시간을 분 단위로 수정하세요.',Number(s.studyMinutes)||0);
+          if(value===null)return;
+          if(!value.trim()||!Number.isSafeInteger(Number(value))||Number(value)<0){alert('0 이상의 정수를 입력해주세요.');return;}
+          s.studyMinutes=Number(value);saveState();renderStudy();
+        });
+        const form = row.querySelector('[data-role="add-form"]');
+        form.addEventListener('submit', e => {
+          e.preventDefault();
+          const addInput = form.querySelector('[data-role="add-input"]');
+          const addVal = Number(addInput.value);
+          if(!Number.isSafeInteger(addVal) || addVal <= 0 || !Number.isSafeInteger((Number(s.studyMinutes)||0)+addVal)) return;
+          const student = state.students.find(x => x.id === s.id);
+          student.studyMinutes = (Number(student.studyMinutes) || 0) + addVal;
+          saveState();
+          renderStudy();
+        });
+        studyList.appendChild(row);
+      });
+    }
+
+    if(notJoined.length > 0){
+      const group = makeNotJoinedGroup('study', notJoined.length);
+      studyList.appendChild(group);
+
+      notJoined.forEach(s => {
+        const row = document.createElement('div');
+        row.className = 'study-row not-joined';
+        row.innerHTML = `
+          <div class="study-name">${escapeHtml(s.name)}</div>
+          <div class="row-actions">
+            <button class="planner-toggle" data-role="toggle">참여 신청</button>
+            <button class="icon-btn-remove" data-role="exclude" title="열품타 목록에서 제외">삭제</button>
+          </div>
+        `;
+        row.querySelector('[data-role="toggle"]').addEventListener('click', () => toggleStudyJoined(s.id));
+        row.querySelector('[data-role="exclude"]').addEventListener('click', () => excludeFromStudy(s.id));
+        group.appendChild(row);
+      });
+    }
+
+    if(sorted.length === 0){
+      const empty = document.createElement('p');
+      empty.className = 'empty-state';
+      empty.textContent = '참여 학생이 없어요. 미참여 학생 목록을 펼쳐 참여 신청을 눌러주세요.';
+      studyList.prepend(empty);
+    }
+
+    if(excluded.length > 0){
+      const toggleLine = document.createElement('button');
+      toggleLine.className = 'excluded-toggle';
+      toggleLine.textContent = studyExcludedOpen
+        ? `제외한 학생 숨기기 (${excluded.length}명)`
+        : `제외한 학생 보기 (${excluded.length}명)`;
+      toggleLine.addEventListener('click', () => {
+        studyExcludedOpen = !studyExcludedOpen;
+        renderStudy();
+      });
+      studyList.appendChild(toggleLine);
+
+      if(studyExcludedOpen){
+        const list = document.createElement('div');
+        list.className = 'excluded-list';
+        excluded.forEach(s => {
+          const row = document.createElement('div');
+          row.className = 'study-row not-joined';
+          row.innerHTML = `
+            <div class="study-name">${escapeHtml(s.name)}</div>
+            <button class="planner-toggle" data-role="restore">다시 추가</button>
+          `;
+          row.querySelector('[data-role="restore"]').addEventListener('click', () => restoreToStudy(s.id));
+          list.appendChild(row);
+        });
+        studyList.appendChild(list);
+      }
+    }
+  }
+
+  // ---------- Planner (학습 플래너) ----------
+  const plannerList = document.getElementById('plannerList');
+
+  function excludeFromPlanner(id){
+    const student = state.students.find(x => x.id === id);
+    student.plannerExcluded = true;
+    saveState();
+    renderPlanner();
+  }
+
+  function restoreToPlanner(id){
+    const student = state.students.find(x => x.id === id);
+    student.plannerExcluded = false;
+    saveState();
+    renderPlanner();
+  }
+
+  function renderPlanner(){
+    plannerList.innerHTML = '';
+    if(state.students.length === 0){
+      plannerList.innerHTML = '<p class="empty-state">학생을 먼저 추가해주세요.</p>';
+      return;
+    }
+    const visible = state.students.filter(s => !s.plannerExcluded);
+    const excluded = state.students.filter(s => s.plannerExcluded);
+    const joinedCount = visible.filter(s => s.plannerJoined).length;
+
+    const countEl = document.createElement('p');
+    countEl.className = 'planner-count';
+    countEl.style.marginBottom = '14px';
+    countEl.textContent = `참여자 ${joinedCount}명`;
+    plannerList.appendChild(countEl);
+
+    const notJoined = visible.filter(s => !s.plannerJoined);
+    const group = notJoined.length ? makeNotJoinedGroup('planner', notJoined.length) : null;
+    if(joinedCount === 0){
+      const empty = document.createElement('p');
+      empty.className = 'empty-state';
+      empty.textContent = '참여 학생이 없어요. 미참여 학생 목록을 펼쳐 참여 신청을 눌러주세요.';
+      plannerList.appendChild(empty);
+    }
+    visible.forEach(s => {
+      s.plannerDates=s.plannerDates||[];
+      const row = document.createElement('div');
+      row.className = 'planner-row';
+      row.innerHTML = `
+        <span class="planner-name">${escapeHtml(s.name)}</span>
+        <div class="row-actions">
+          <button class="planner-toggle ${s.plannerJoined ? 'joined' : ''}" data-role="toggle">
+            ${s.plannerJoined ? '참여 중' : '참여 신청'}
+          </button>
+          <button class="icon-btn-remove" data-role="exclude" title="학습 플래너 목록에서 제외">삭제</button>
+        </div>
+      `;
+      row.querySelector('[data-role="toggle"]').addEventListener('click', () => {
+        const student = state.students.find(x => x.id === s.id);
+        student.plannerJoined = !student.plannerJoined;
+        saveState();
+        renderPlanner();
+      });
+      row.querySelector('[data-role="exclude"]').addEventListener('click', () => excludeFromPlanner(s.id));
+      if(s.plannerJoined){
+        const detail=document.createElement('div');detail.className='plan-details';
+        detail.innerHTML=`<form class="study-add-form"><input type="date" aria-label="플래너 확인 날짜" value="${localDate()}" required><button>확인 체크</button></form><p class="record-note">확인 ${s.plannerDates.length}일 · 같은 날짜는 한 번만 기록해요.</p><div class="dates"></div>`;
+        detail.querySelector('form').onsubmit=e=>{e.preventDefault();const d=detail.querySelector('input').value;if(d>localDate()){alert('미래 날짜는 체크할 수 없어요.');return;}if(!s.plannerDates.includes(d))s.plannerDates.push(d);saveState();renderPlanner();};
+        s.plannerDates.slice().sort().reverse().forEach(d=>{const chip=document.createElement('span');chip.className='plan-date';chip.append(document.createTextNode(d));const b=document.createElement('button');b.textContent='×';b.setAttribute('aria-label',d+' 체크 삭제');b.onclick=()=>{s.plannerDates=s.plannerDates.filter(x=>x!==d);saveState();renderPlanner();};chip.append(b);detail.querySelector('.dates').append(chip);});row.append(detail);
+      }
+
+      (s.plannerJoined ? plannerList : group).appendChild(row);
+    });
+    if(group)plannerList.appendChild(group);
+
+    if(excluded.length > 0){
+      const toggleLine = document.createElement('button');
+      toggleLine.className = 'excluded-toggle';
+      toggleLine.textContent = plannerExcludedOpen
+        ? `제외한 학생 숨기기 (${excluded.length}명)`
+        : `제외한 학생 보기 (${excluded.length}명)`;
+      toggleLine.addEventListener('click', () => {
+        plannerExcludedOpen = !plannerExcludedOpen;
+        renderPlanner();
+      });
+      plannerList.appendChild(toggleLine);
+
+      if(plannerExcludedOpen){
+        const list = document.createElement('div');
+        list.className = 'excluded-list';
+        excluded.forEach(s => {
+          const row = document.createElement('div');
+          row.className = 'planner-row';
+          row.innerHTML = `
+            <span class="planner-name">${escapeHtml(s.name)}</span>
+            <button class="planner-toggle" data-role="restore">다시 추가</button>
+          `;
+          row.querySelector('[data-role="restore"]').addEventListener('click', () => restoreToPlanner(s.id));
+          list.appendChild(row);
+        });
+        plannerList.appendChild(list);
+      }
+    }
+  }
+
+  // ---------- Lotto (시험 로또) ----------
+  const lottoThead = document.querySelector('#lottoTable thead');
+  const lottoTbody = document.querySelector('#lottoTable tbody');
+  const lottoLockScreen = document.getElementById('lottoLockScreen');
+  const lottoContent = document.getElementById('lottoContent');
+  const lottoLockBtn = document.getElementById('lottoLockBtn');
+  const lottoChangePinBtn = document.getElementById('lottoChangePinBtn');
+  const lottoChangePinBox = document.getElementById('lottoChangePinBox');
+
+  function getLottoPin(){
+    try{ return localStorage.getItem(LOTTO_PIN_KEY) || ''; }catch(e){ return ''; }
+  }
+  function setLottoPin(pin){
+    try{ localStorage.setItem(LOTTO_PIN_KEY, pin); }catch(e){ /* storage unavailable */ }
+  }
+  function getLottoRecovery(){
+    try{
+      return {
+        question: localStorage.getItem(LOTTO_Q_KEY) || '',
+        answer: localStorage.getItem(LOTTO_A_KEY) || ''
+      };
+    }catch(e){ return { question:'', answer:'' }; }
+  }
+  function setLottoRecovery(question, answer){
+    try{
+      localStorage.setItem(LOTTO_Q_KEY, question);
+      localStorage.setItem(LOTTO_A_KEY, answer);
+    }catch(e){ /* storage unavailable */ }
+  }
+
+  function renderLottoGate(){
+    renderLottoDiffBoard();lottoLockBtn.hidden=true;
+    lottoContent.hidden=!teacherAdminUnlocked;lottoLockScreen.hidden=teacherAdminUnlocked;lottoChangePinBtn.hidden=!teacherAdminUnlocked;
+    if(teacherAdminUnlocked){renderLotto();renderPredWindowForm();}
+    else{lottoChangePinBox.hidden=true;lottoTbody.innerHTML='';lottoLockScreen.innerHTML='<p class="notice">상단 교사 관리에서 로그인하면 점수를 관리할 수 있습니다.</p><button type="button" class="soft" id="lottoGoLogin">교사 로그인으로 이동</button>';document.getElementById('lottoGoLogin').onclick=()=>document.getElementById('teacherAdminPin').focus();}
+  }
+
+  lottoChangePinBtn.addEventListener('click', () => {
+    if(!requireTeacherAdmin())return;
+    lottoChangePinBox.hidden = !lottoChangePinBox.hidden;
+    if(!lottoChangePinBox.hidden){
+      document.getElementById('lottoChangePinInput').value = '';
+      document.getElementById('lottoChangeQuestion').value = '';
+      document.getElementById('lottoChangeAnswer').value = '';
+    }
+  });
+
+  document.getElementById('lottoChangePinForm').addEventListener('submit', e => {
+    e.preventDefault();if(!requireTeacherAdmin())return;
+    const val = document.getElementById('lottoChangePinInput').value.trim();
+    if(!val){ alert('새 비밀번호를 입력해주세요.'); return; }
+    const q = document.getElementById('lottoChangeQuestion').value.trim();
+    const a = document.getElementById('lottoChangeAnswer').value.trim();
+    setLottoPin(val);
+    setLottoRecovery(q, a);
+    lottoChangePinBox.hidden = true;
+    alert('비밀번호가 변경됐어요.');
+  });
+
+  function buildLottoHead(){
+    let subjectHeaders = SUBJECTS.map(s => `<th>${escapeHtml(s.label)}<br><span style="font-weight:400">예상/실제</span></th>`).join('');
+    lottoThead.innerHTML = `
+      <tr>
+        <th style="text-align:left;">이름</th>
+        ${subjectHeaders}
+        <th>총 점수차</th>
+        <th>결과</th>
+      </tr>
+    `;
+  }
+
+  // ---------- 예상 점수 입력 기간 ----------
+  function formatPredWindowLabel(){
+    const w = state.lottoPredWindow || {};
+    if(!w.start && !w.end) return '설정 안 됨 (언제든 입력 가능해요)';
+    const startLabel = w.start ? w.start.replace(/-/g,'.') : '제한 없음';
+    const endLabel = w.end ? w.end.replace(/-/g,'.') : '제한 없음';
+    return `${startLabel} ~ ${endLabel}`;
+  }
+
+  function isPredWindowOpen(){
+    const w = state.lottoPredWindow || {};
+    if(!w.start && !w.end) return true;
+    const now = new Date();
+    if(w.start){
+      const start = new Date(w.start + 'T00:00:00');
+      if(now < start) return false;
+    }
+    if(w.end){
+      const end = new Date(w.end + 'T23:59:59');
+      if(now > end) return false;
+    }
+    return true;
+  }
+
+  function renderPredWindowForm(){
+    const w = state.lottoPredWindow || {};
+    document.getElementById('predWindowStart').value = w.start || '';
+    document.getElementById('predWindowEnd').value = w.end || '';
+    document.getElementById('predWindowStatus').textContent = `현재 설정: ${formatPredWindowLabel()}`;
+  }
+
+  document.getElementById('predWindowForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const start = document.getElementById('predWindowStart').value;
+    const end = document.getElementById('predWindowEnd').value;
+    if(start&&end&&start>end){alert('종료일은 시작일보다 빠를 수 없어요.');return;}
+    state.lottoPredWindow = { start, end };
+    saveState();
+    renderPredWindowForm();
+  });
+
+  function computeLotto(student){
+    let predBelow40 = false;
+    let predComplete = true;
+    let hasActual = true;
+    let totalDiff = 0;
+    SUBJECTS.forEach(s => {
+      const pred = student.lotto[s.key].pred;
+      const actual = student.lotto[s.key].actual;
+      if(pred === ''){
+        predComplete = false;
+      }else if(Number(pred) < 40){
+        predBelow40 = true;
+      }
+      if(actual === '') hasActual = false;
+      if(pred !== '' && actual !== ''){
+        totalDiff += Math.abs(Number(pred) - Number(actual));
+      }
+    });
+    const inRange=SUBJECTS.every(s=>['pred','actual'].every(f=>{const v=student.lotto[s.key][f];return v!==''&&Number.isFinite(Number(v))&&Number(v)>=0&&Number(v)<=100;}));
+    totalDiff=Math.round(totalDiff*100)/100;
+    const eligible = SUBJECTS.length>0 && predComplete && !predBelow40 && hasActual && inRange;
+    return { predBelow40, predComplete, hasActual, totalDiff, eligible };
+  }
+
+  function renderLottoDiffBoard(){
+    const board = document.getElementById('lottoDiffBoard');
+    if(!board) return;
+    if(state.students.length === 0){
+      board.innerHTML = '<p class="empty-state">학생을 먼저 추가해주세요.</p>';
+      return;
+    }
+    const computed = state.students.map(s => ({ student: s, ...computeLotto(s) }));
+    const ranked = computed.filter(c => c.eligible).sort((a,b) => a.totalDiff - b.totalDiff);
+    const others = computed.filter(c => !c.eligible);
+
+    board.innerHTML = '';
+
+    ranked.forEach((c, idx) => {
+      const rank=1+ranked.filter(x=>x.totalDiff<c.totalDiff).length;
+      const isWin = rank <= 2;
+      const row = document.createElement('div');
+      row.className = 'lotto-diff-row' + (isWin ? ' win' : '');
+      row.innerHTML = `
+        <span class="lotto-diff-rank">${rank}위</span>
+        <span class="lotto-diff-name">${escapeHtml(c.student.name)}</span>
+        <span class="lotto-diff-value">${c.totalDiff}점차</span>
+      `;
+      board.appendChild(row);
+    });
+
+    others.forEach(c => {
+      let statusText;
+      if(c.predBelow40) statusText = '무효(40점 미만)';
+      else if(!c.predComplete) statusText = '예상점수 입력 중';
+      else statusText = '실제점수 대기';
+      const row = document.createElement('div');
+      row.className = 'lotto-diff-row';
+      row.innerHTML = `
+        <span class="lotto-diff-rank">-</span>
+        <span class="lotto-diff-name">${escapeHtml(c.student.name)}</span>
+        <span class="lotto-diff-value">${statusText}</span>
+      `;
+      board.appendChild(row);
+    });
+  }
+
+  function renderLotto(){
+    lottoTbody.innerHTML = '';
+    if(!SUBJECTS.length){lottoTbody.innerHTML='<tr><td colspan="3" class="empty-state">시험 안내에 과목을 먼저 등록해주세요.</td></tr>';return;}
+    if(state.students.length === 0){
+      lottoTbody.innerHTML = `<tr><td colspan="${SUBJECTS.length+3}" class="empty-state">학생을 먼저 추가해주세요.</td></tr>`;
+      return;
+    }
+
+    state.students.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.id = `lrow-${s.id}`;
+
+      let subjCells = SUBJECTS.map(subj => {
+        const data = s.lotto[subj.key];
+        return `
+          <td>
+            <div class="subj-pair">
+              <input type="number" class="pred" min="40" max="100" step="0.01" aria-label="${escapeHtml(subj.label)} 예상 점수" value="${data.pred}" data-id="${s.id}" data-subj="${subj.key}" data-field="pred" placeholder="예상">
+              <input type="number" min="0" max="100" step="0.01" aria-label="${escapeHtml(subj.label)} 실제 점수" value="${data.actual}" data-id="${s.id}" data-subj="${subj.key}" data-field="actual" placeholder="실제">
+            </div>
+          </td>
+        `;
+      }).join('');
+
+      tr.innerHTML = `
+        <td class="name-cell">${escapeHtml(s.name)}</td>
+        ${subjCells}
+        <td class="diff-cell" id="ldiff-${s.id}"></td>
+        <td id="lresult-${s.id}"></td>
+      `;
+      lottoTbody.appendChild(tr);
+    });
+
+    lottoTbody.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('change', e => {
+        if(!e.target.checkValidity()){e.target.reportValidity();const d=e.target.dataset;e.target.value=state.students.find(s=>s.id===d.id).lotto[d.subj][d.field];return;}
+        const id = e.target.dataset.id;
+        const subj = e.target.dataset.subj;
+        const field = e.target.dataset.field;
+        const student = state.students.find(x => x.id === id);
+        student.lotto[subj][field] = e.target.value;
+        saveState();
+        updateLottoCalculations();
+        renderLottoDiffBoard();
+      });
+    });
+
+    updateLottoCalculations();
+  }
+
+  function updateLottoCalculations(){
+    if(state.students.length === 0) return;
+    const computed = state.students.map(s => ({ student: s, ...computeLotto(s) }));
+    const ranked = computed
+      .filter(c => c.eligible)
+      .sort((a,b) => a.totalDiff - b.totalDiff);
+    const winnerIds = ranked.filter(c=>ranked.filter(x=>x.totalDiff<c.totalDiff).length<2).map(c=>c.student.id);
+
+    computed.forEach(c => {
+      const s = c.student;
+      const rankIdx = c.eligible ? ranked.filter(x=>x.totalDiff<c.totalDiff).length : -1;
+      const tr = document.getElementById(`lrow-${s.id}`);
+      if(tr){
+        tr.classList.toggle('win1', rankIdx === 0);
+        tr.classList.toggle('win2', rankIdx === 1);
+      }
+
+      let resultTag;
+      if(c.predBelow40){
+        resultTag = '<span class="result-tag invalid">무효(40점 미만)</span>';
+      }else if(!c.predComplete){
+        resultTag = '<span class="result-tag pending">예상점수 입력 중</span>';
+      }else if(!c.hasActual){
+        resultTag = '<span class="result-tag pending">실제점수 대기</span>';
+      }else if(rankIdx === 0){
+        resultTag = '<span class="result-tag win">🏆 1등</span>';
+      }else if(rankIdx === 1){
+        resultTag = '<span class="result-tag win">🏆 2등</span>';
+      }else{
+        resultTag = '<span class="result-tag pending">-</span>';
+      }
+
+      const diffCell = document.getElementById(`ldiff-${s.id}`);
+      if(diffCell) diffCell.textContent = c.eligible ? c.totalDiff : '-';
+      const resultCell = document.getElementById(`lresult-${s.id}`);
+      if(resultCell) resultCell.innerHTML = resultTag;
+    });
+  }
+
+  // ---------- Utilities ----------
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  function renderAll(){
+    renderTeacherAdmin();
+    renderContext();
+    syncSubjects();buildLottoHead();
+    renderExams();
+    renderSummary();
+    renderRoster();
+    loadDateSettings();renderStudyProgress();renderDday();
+    renderStudy();
+    renderPlanner();
+    renderLottoGate();
+  }
+
+  document.getElementById('resetAllBtn').addEventListener('click', () => {
+    if(!requireTeacherAdmin())return;
+    const pin = getLottoPin();
+    if(pin){
+      const input = prompt('현재 시험 기록을 초기화하려면 비밀번호를 입력하세요.');
+      if(input === null) return;
+      if(input !== pin){
+        alert('비밀번호가 달라요.');
+        return;
+      }
+    }
+    if(confirm(contextLabel()+'의 점수·이벤트·시험 안내를 초기화할까요? 학생 명단과 다른 시험 기록은 유지됩니다.')){
+      state = Object.assign(emptySession(),{students:database.years[database.activeYear].roster.map(r=>Object.assign(makeStudent(r.name),{id:r.id}))});
+      clearExamForm();saveState();
+      renderAll();
+    }
+  });
+
+  // ---------- Student entry mode ----------
+  const teacherView = document.getElementById('teacherView');
+  const studentView = document.getElementById('studentView');
+  const seNameSelect = document.getElementById('seNameSelect');
+  const seConfirm = document.getElementById('seConfirm');
+  const seModeBtns = document.querySelectorAll('.se-mode-btn');
+  let studentEntryMode = 'pred';
+
+  function setMode(mode){
+    teacherView.hidden = (mode !== 'teacher');
+    studentView.hidden = (mode !== 'student');
+    if(mode === 'student'){
+      teacherAdminUnlocked=false;renderTeacherAdmin();renderRoster();
+      renderDday();
+      clearExamForm();renderExams();
+      renderLottoGate();
+      studentEntryMode = 'pred';
+      seModeBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === 'pred'));
+      renderStudentEntryForm();
+    }
+  }
+
+  seModeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      studentEntryMode = btn.dataset.mode;
+      seModeBtns.forEach(b => b.classList.toggle('active', b === btn));
+      renderStudentEntryForm();
+    });
+  });
+
+  function renderStudentEntryForm(){
+    const formEl = document.getElementById('studentEntryForm');
+    const fields=document.getElementById('studentScoreFields');fields.replaceChildren();
+    SUBJECTS.forEach(sub=>{const label=document.createElement('label');label.className='se-label';label.textContent=sub.label;const input=document.createElement('input');input.type='number';input.id='score_'+sub.key;input.min=studentEntryMode==='pred'?'40':'0';input.max='100';input.step='0.01';input.required=true;input.placeholder=input.min+'~100';label.append(input);fields.append(label);});
+    if(!SUBJECTS.length){formEl.hidden=true;document.getElementById('sePeriodClosed').hidden=false;document.getElementById('sePeriodClosed').textContent='선생님이 시험 안내에 과목을 등록한 후 점수를 입력할 수 있어요.';seConfirm.hidden=true;return;}
+
+    const closedEl = document.getElementById('sePeriodClosed');
+    const titleEl = document.getElementById('seTitle');
+    const descEl = document.getElementById('seDesc');
+
+    if(studentEntryMode === 'pred'){
+      titleEl.textContent = '시험 로또 점수 입력';
+      descEl.textContent = '이름을 선택하고 등록된 시험 과목의 예상 점수를 입력해주세요. (각 과목 40점 이상이어야 유효해요)';
+
+      if(!isPredWindowOpen()){
+        formEl.hidden = true;
+        seConfirm.hidden = true;
+        closedEl.hidden = false;
+        closedEl.textContent = `지금은 예상 점수를 입력할 수 있는 기간이 아니에요. (입력 기간: ${formatPredWindowLabel()})`;
+        return;
+      }
+    }else{
+      titleEl.textContent = '시험 로또 점수 입력';
+      descEl.textContent = '이름을 선택하고 등록된 시험 과목의 실제 점수를 입력해주세요.';
+    }
+
+    formEl.hidden = false;
+    closedEl.hidden = true;
+    seNameSelect.innerHTML = '<option value="">이름을 선택하세요</option>' +
+      state.students.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+    seConfirm.hidden = true;
+  }
+
+  seNameSelect.addEventListener('change', () => {
+    const student = state.students.find(x => x.id === seNameSelect.value);
+    const field = studentEntryMode;
+    seConfirm.hidden = true;
+    SUBJECTS.forEach(sub=>{document.getElementById('score_'+sub.key).value=student?student.lotto[sub.key][field]:'';});
+  });
+
+  document.getElementById('studentEntryForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if(studentEntryMode === 'pred' && !isPredWindowOpen()){
+      alert('지금은 예상 점수를 입력할 수 있는 기간이 아니에요.');
+      renderStudentEntryForm();
+      return;
+    }
+    const student = state.students.find(x => x.id === seNameSelect.value);
+    if(!student){ alert('이름을 선택해주세요.'); return; }
+
+    if(!SUBJECTS.length)return;
+    const values = Object.fromEntries(SUBJECTS.map(sub=>[sub.key,document.getElementById('score_'+sub.key).value]));
+    const min=studentEntryMode==='pred'?40:0;
+    const invalid = Object.values(values).some(v => v === '' || !Number.isFinite(Number(v)) || Number(v) < min || Number(v) > 100);
+    if(invalid){
+      alert('등록된 모든 과목에 '+min+'~100 사이 점수를 입력해주세요.');
+      return;
+    }
+
+    const field = studentEntryMode;
+    if(SUBJECTS.some(sub=>student.lotto[sub.key][field]!=='' )&&!confirm('기존 점수를 새 점수로 바꿀까요?'))return;
+    Object.keys(values).forEach(key => { student.lotto[key][field] = values[key]; });
+    saveState();
+    renderLottoDiffBoard();
+    updateLottoCalculations();
+
+    const label = studentEntryMode === 'pred' ? '예상' : '실제';
+    seConfirm.textContent = `✅ ${student.name}님, ${label} 점수가 제출됐어요!`;
+    seConfirm.hidden = false;
+    try{ seConfirm.scrollIntoView({ behavior: 'smooth', block: 'center' }); }catch(err){ /* scrollIntoView 미지원 환경 무시 */ }
+    document.getElementById('studentEntryForm').reset();
+    seNameSelect.value = '';
+  });
+
+  document.getElementById('studentModeBtn').addEventListener('click', () => setMode('student'));
+
+  document.getElementById('backToTeacherBtn').addEventListener('click', () => {
+    setMode('teacher');
+    renderAll();
+    document.getElementById('studentModeBtn').focus();
+  });
+
+  function localDate(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+  function renderSummary(){
+    const all=state.students;const vals=[['등록 학생',all.length,'명'],['열품타 참여',all.filter(s=>s.studyJoined&&!s.studyExcluded).length,'명'],['플래너 참여',all.filter(s=>s.plannerJoined&&!s.plannerExcluded).length,'명'],['예상 점수 제출',all.filter(s=>SUBJECTS.length>0&&SUBJECTS.every(x=>s.lotto[x.key].pred!==''&&Number(s.lotto[x.key].pred)>=40)).length,'명']];
+    document.getElementById('summary').innerHTML=vals.map(v=>`<div class="stat"><span>${v[0]}</span><strong>${v[1]}<small>${v[2]}</small></strong></div>`).join('');document.getElementById('rosterCount').textContent='· '+all.length+'명';
+  }
+  document.getElementById('eventSettings').onsubmit=e=>{e.preventDefault();const start=document.getElementById('eventStart').value,end=document.getElementById('eventEnd').value;if(start>end){alert('종료일을 시작일 이후로 설정해주세요.');return;}state.eventPeriod={start,end};saveState();renderStudyProgress();};
+
+  function validateSession(raw){      if(!raw||!Array.isArray(raw.students)||raw.students.length>1000)throw Error('백업 형식을 확인해주세요.');
+      const next={students:raw.students.map(s=>{
+        if(typeof s.name!=='string'||!s.name.trim()||s.name.length>100)throw Error('학생 이름이 올바르지 않습니다.');
+        const n=makeStudent(s.name);if(typeof s.id==='string'&&/^[a-zA-Z0-9_-]{1,100}$/.test(s.id))n.id=s.id;['studyJoined','studyExcluded','plannerJoined','plannerExcluded'].forEach(k=>n[k]=s[k]===true);
+        if(!Number.isSafeInteger(Number(s.studyMinutes||0))||Number(s.studyMinutes||0)<0)throw Error('시간 기록이 올바르지 않습니다.');n.studyMinutes=Number(s.studyMinutes||0);
+        Object.keys(s.lotto||{}).forEach(key=>{if(!/^(eng|math|sci|hist|sub_[a-f0-9_]+)$/.test(key))throw Error('과목 키가 올바르지 않습니다.');n.lotto[key]={pred:'',actual:''};['pred','actual'].forEach(f=>{const v=s.lotto[key]?.[f]??'';if(v!==''&&(typeof v!=='number'&&typeof v!=='string'||!Number.isFinite(Number(v))||Number(v)<0||Number(v)>100))throw Error('점수 기록이 올바르지 않습니다.');n.lotto[key][f]=v===''?'':String(Number(v));});});
+        n.plannerDates=[...new Set((Array.isArray(s.plannerDates)?s.plannerDates:[]).filter(d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)))];return n;
+      })};
+      for(const k of ['lottoPredWindow','eventPeriod']){if(raw[k]){const w=raw[k];if(!['start','end'].every(f=>typeof w[f]==='string'&&(w[f]===''||/^\d{4}-\d{2}-\d{2}$/.test(w[f])&&!isNaN(Date.parse(w[f]))))||w.start&&w.end&&w.start>w.end)throw Error('기간 설정이 올바르지 않습니다.');if(k==='eventPeriod'&&(!w.start||!w.end))throw Error('이벤트 기간이 비어 있습니다.');next[k]={start:w.start,end:w.end};}}
+      if(raw.examDday){if(typeof raw.examDday.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(raw.examDday.date)||!Number.isFinite(dayNumber(raw.examDday.date))||typeof raw.examDday.title!=='string'||raw.examDday.title.length>60)throw Error('시험 D-day 설정을 확인해주세요.');next.examDday={date:raw.examDday.date,title:raw.examDday.title};}
+      next.exams=normalizeExams(raw.exams===undefined?Object.entries(legacySubjects).filter(([name,key])=>next.students.some(s=>s.lotto[key]&&['pred','actual'].some(f=>s.lotto[key][f]!==''))).map(([subject,subjectKey])=>({subject,subjectKey})):raw.exams);
+
+      if(new Set(next.students.map(s=>s.id)).size!==next.students.length)throw Error('중복 학생 ID');
+      return next;
+}
+  function validateDatabase(raw){
+    if(!raw||raw.version!==3||!raw.years||typeof raw.years!=='object'||Object.keys(raw.years).length>201)throw Error('학년도 백업 형식을 확인해주세요.');
+    const result={version:3,activeYear:String(raw.activeYear),activeExam:raw.activeExam,years:{}};
+    for(const [year,bucket] of Object.entries(raw.years)){
+      if(!/^(20\d{2}|21\d{2}|2200)$/.test(year)||!Array.isArray(bucket.roster)||bucket.roster.length>1000||!bucket.sessions)throw Error('학년도 명단을 확인해주세요.');
+      const roster=bucket.roster.map(r=>{if(typeof r.id!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(r.id)||typeof r.name!=='string'||!r.name.trim()||r.name.length>100)throw Error('학생 명단 형식 오류');return {id:r.id,name:r.name};});
+      if(new Set(roster.map(r=>r.id)).size!==roster.length)throw Error('중복 학생 ID');
+      const sessions={};for(const [exam,entry] of Object.entries(bucket.sessions)){if(!Object.hasOwn(SESSION_LABELS,exam))throw Error('시험 구분 오류');sessions[exam]=validateSession(entry);if(sessions[exam].students.some(s=>!roster.some(r=>r.id===s.id)))throw Error('시험 기록과 학생 명단이 일치하지 않습니다.');}
+      result.years[year]={roster,sessions};
+    }
+    if(!result.years[result.activeYear]||!Object.hasOwn(SESSION_LABELS,result.activeExam))throw Error('선택한 학년도·시험 오류');return result;
+  }
+  let backupPayload='';
+  function closeBackup(){backupPayload='';document.getElementById('backupText').value='';document.getElementById('backupPanel').hidden=true;}
+  function downloadBackup(){
+    if(!requireTeacherAdmin()||!backupPayload)return;
+    try{const blob=new Blob([backupPayload],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='시험기간_전체학년도_'+localDate()+'.json';a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);document.getElementById('backupStatus').textContent='다운로드를 요청했습니다. 파일이 생기지 않으면 아래 백업 내용 복사를 사용해주세요.';}
+    catch(err){document.getElementById('backupStatus').textContent='이 환경에서는 다운로드를 실행하지 못했습니다. 아래 백업 내용을 복사해 저장해주세요.';}
+  }
+  document.getElementById('backupBtn').onclick=()=>{
+    if(!requireTeacherAdmin())return;
+    try{commitCurrent();backupPayload=JSON.stringify({format:'exam-events',version:3,exportedAt:new Date().toISOString(),data:database},null,2);document.getElementById('backupText').value=backupPayload;document.getElementById('backupPanel').hidden=false;document.getElementById('backupStatus').textContent='전체 학년도와 시험 기록의 백업을 준비했습니다.';downloadBackup();document.getElementById('backupPanel').scrollIntoView({block:'center',behavior:'smooth'});}
+    catch(err){document.getElementById('saveStatus').textContent='백업 준비 실패: '+err.message;}
+  };
+  document.getElementById('backupDownload').onclick=downloadBackup;
+  document.getElementById('backupClose').onclick=closeBackup;
+  document.getElementById('backupCopy').onclick=async()=>{
+    if(!requireTeacherAdmin()||!backupPayload)return;
+    const text=document.getElementById('backupText');text.focus();text.select();
+    try{if(!navigator.clipboard?.writeText)throw Error('unavailable');await navigator.clipboard.writeText(backupPayload);document.getElementById('backupStatus').textContent='백업 내용을 복사했습니다. 메모장에 붙여 넣어 .json 파일로 저장해주세요.';}
+    catch(err){document.getElementById('backupStatus').textContent='자동 복사를 사용할 수 없어 내용을 선택했습니다. Ctrl+C 또는 휴대폰의 복사를 눌러주세요.';}
+  };
+  document.getElementById('restoreBtn').onclick=()=>{if(requireTeacherAdmin())document.getElementById('restoreFile').click();};
+  document.getElementById('restoreFile').onchange=async e=>{
+    if(!requireTeacherAdmin()){e.target.value='';return;}
+    const file=e.target.files[0];if(!file)return;
+    try{
+      if(file.size>20000000)throw Error('파일이 너무 큽니다.');const parsed=JSON.parse(await file.text());if(!requireTeacherAdmin())return;const raw=parsed.format==='exam-events'?parsed.data:parsed;
+      if(raw.version===3&&raw.years){const next=validateDatabase(raw);if(!confirm('전체 학년도 기록을 백업 내용으로 바꿀까요? 현재 기록을 먼저 백업해주세요.'))return;database=next;state=openSession(database.activeYear,database.activeExam);}
+      else{const next=validateSession(raw);if(!confirm('이전 형식 백업을 '+contextLabel()+'에 불러올까요? 해당 학년도의 학생 명단도 반영됩니다.'))return;state=next;}
+      clearExamForm();saveState();renderAll();
+    }catch(err){alert('불러오기 실패: '+err.message);}finally{e.target.value='';}
+  };
+
+
+  let editingExamId=null;
+  let deletingExamId=null;
+  const examFields=['Subject','Date','Period','Range','Note'];
+  function normalizeExams(raw){
+    if(raw===undefined)return [];
+    if(!Array.isArray(raw)||raw.length>500)throw Error('시험 안내 데이터가 올바르지 않습니다.');
+    return raw.map((row,i)=>{
+      if(!row||typeof row.subject!=='string'||!row.subject.trim()||row.subject.length>40)throw Error('시험 과목 이름을 확인해주세요.');
+      const out={id:'exam_'+Date.now()+'_'+i};
+      for(const k of ['subject','date','period','range','note']){if(row[k]!==undefined&&typeof row[k]!=='string')throw Error('시험 안내 형식을 확인해주세요.');out[k]=row[k]||'';}
+      if(out.range.length>3000||out.note.length>1000||out.period.length>20)throw Error('시험 안내 내용이 너무 깁니다.');
+      if(out.date&&(!/^\d{4}-\d{2}-\d{2}$/.test(out.date)||isNaN(Date.parse(out.date))))throw Error('시험 날짜를 확인해주세요.');
+      out.subjectKey=typeof row.subjectKey==='string'&&/^(eng|math|sci|hist|sub_[a-f0-9_]+)$/.test(row.subjectKey)?row.subjectKey:subjectKey(out.subject);
+      out.period=normalizePeriod(out.period);
+      return out;
+    });
+  }
+  function clearExamForm(){editingExamId=null;document.getElementById('examForm').reset();document.getElementById('examSave').textContent='과목 추가';document.getElementById('examCancel').hidden=true;document.getElementById('examFeedback').textContent='';toggleRangeInput();}
+  function renderExams(){
+    renderExamGate();renderTimetable();
+    const exams=(state.exams||[]).slice().sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')||(a.period||'미정').localeCompare(b.period||'미정','ko',{numeric:true})||a.subject.localeCompare(b.subject,'ko'));
+    document.getElementById('examCount').textContent='· '+exams.filter(e=>!isSelfStudy(e.subject)).length+'과목';
+    for(const target of ['examList','studentExamList']){
+      const list=document.getElementById(target);list.replaceChildren();
+      const items=exams.filter(e=>!isSelfStudy(e.subject));
+      if(!items.length){const empty=document.createElement('p');empty.className='empty-state';empty.textContent='아직 등록된 시험 안내가 없어요.';list.append(empty);}
+      items.forEach(exam=>{
+        const card=document.createElement('article');card.className='exam-card';
+        const h=document.createElement('h4');h.textContent=exam.subject;
+        const when=document.createElement('p');when.className='notice';when.textContent=[exam.date||'날짜 미정',exam.period||'교시 미정'].filter(Boolean).join(' · ');
+        const range=document.createElement('p');range.className='exam-text';range.textContent='시험 범위: '+(exam.range||'미정');
+        card.append(h,when);if(!isSelfStudy(exam.subject))card.append(range);
+        if(exam.note){const note=document.createElement('p');note.className='exam-text notice';note.textContent='안내: '+exam.note;card.append(note);}
+        if(target==='examList'&&teacherAdminUnlocked){
+          const actions=document.createElement('div');actions.className='row-actions';
+          const edit=document.createElement('button');edit.className='soft';edit.textContent='수정';edit.onclick=()=>{if(!teacherAdminUnlocked)return;editingExamId=exam.id;examFields.forEach(f=>document.getElementById('exam'+f).value=exam[f.toLowerCase()]||'');document.getElementById('examSave').textContent='수정 저장';document.getElementById('examCancel').hidden=false;document.getElementById('examFeedback').textContent=exam.subject+' 수정 중';document.getElementById('examSubject').focus();toggleRangeInput();};
+          const del=document.createElement('button');del.className='soft';del.textContent=deletingExamId===exam.id?'한 번 더 눌러 삭제':'삭제';del.onclick=()=>{if(!teacherAdminUnlocked)return;if(deletingExamId!==exam.id){deletingExamId=exam.id;renderExams();return;}state.exams=state.exams.filter(x=>x.id!==exam.id);if(editingExamId===exam.id)clearExamForm();deletingExamId=null;saveState();renderAll();};
+          actions.append(edit,del);card.append(actions);
+        }
+        list.append(card);
+      });
+    }
+  }
+  document.getElementById('examCancel').onclick=clearExamForm;
+  document.getElementById('examForm').onsubmit=e=>{
+    e.preventDefault();if(!teacherAdminUnlocked)return;const row={};examFields.forEach(f=>row[f.toLowerCase()]=document.getElementById('exam'+f).value.trim());
+    row.period=normalizePeriod(row.period);if(isSelfStudy(row.subject))row.range='';
+    try{normalizeExams([row]);}catch(err){document.getElementById('examFeedback').textContent=err.message;return;}
+    row.id=editingExamId||'exam_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+    state.exams=state.exams||[];
+    row.subjectKey=state.exams.find(x=>x.id===editingExamId)?.subjectKey||subjectKey(row.subject);
+    if(!editingExamId&&state.exams.some(x=>x.subjectKey===row.subjectKey&&x.subject!==row.subject))row.subjectKey='sub_'+Array.from(row.subject).map(c=>c.codePointAt(0).toString(16)).join('_')+'_'+Date.now().toString(16);
+    if(state.exams.some(x=>x.id!==row.id&&x.subject===row.subject&&!isSelfStudy(row.subject))){document.getElementById('examFeedback').textContent='같은 과목이 이미 등록되어 있어요. 기존 항목을 수정해주세요.';return;}
+    if(row.date&&row.period&&state.exams.some(x=>x.id!==row.id&&x.date===row.date&&normalizePeriod(x.period)===row.period)){document.getElementById('examFeedback').textContent='같은 날짜·교시에 다른 과목이 있어요. 날짜 또는 교시를 확인해주세요.';return;}
+    if(editingExamId){state.exams=state.exams.map(x=>x.id===editingExamId?row:x);}else{state.exams.push(row);}
+    clearExamForm();saveState();renderAll();document.getElementById('examFeedback').textContent=row.subject+' 시험 안내를 저장했어요.';
+  };
+
+
+  function normalizePeriod(value){const v=(value||'').trim();const m=v.match(/^(\d+)\s*(?:교시)?$/);return m?Number(m[1])+'교시':v;}
+  function renderExamGate(){
+    document.getElementById('examGate').hidden=teacherAdminUnlocked;
+    document.getElementById('examForm').hidden=!teacherAdminUnlocked;
+    document.getElementById('ddaySettings').hidden=!teacherAdminUnlocked;
+    document.getElementById('examLockBtn').hidden=true;
+  }
+  document.getElementById('examGoLogin').onclick=()=>document.getElementById('teacherAdminPin').focus();
+
+  function selfStudyActions(exam){
+    const actions=document.createElement('div');actions.className='row-actions timetable-actions';
+    const edit=document.createElement('button');edit.className='soft';edit.textContent='수정';edit.onclick=()=>{if(!teacherAdminUnlocked)return;editingExamId=exam.id;examFields.forEach(f=>document.getElementById('exam'+f).value=exam[f.toLowerCase()]||'');document.getElementById('examSave').textContent='수정 저장';document.getElementById('examCancel').hidden=false;document.getElementById('examFeedback').textContent='자기주도학습 일정 수정 중';document.getElementById('examDate').focus();toggleRangeInput();};
+    const del=document.createElement('button');del.className='soft';del.textContent=deletingExamId===exam.id?'삭제 확인':'삭제';del.onclick=()=>{if(!teacherAdminUnlocked)return;if(deletingExamId!==exam.id){deletingExamId=exam.id;renderTimetable();return;}state.exams=state.exams.filter(x=>x.id!==exam.id);if(editingExamId===exam.id)clearExamForm();deletingExamId=null;saveState();renderAll();};actions.append(edit,del);return actions;
+  }
+  function toggleRangeInput(){const input=document.getElementById('examRange');input.parentElement.hidden=isSelfStudy(document.getElementById('examSubject').value);}
+  document.getElementById('examSubject').addEventListener('input',toggleRangeInput);
+
+  function renderTimetable(){
+    const exams=state.exams||[];
+    const dates=[...new Set(exams.filter(e=>e.date).map(e=>e.date))].sort();
+    const periods=[...new Set(exams.filter(e=>e.period).map(e=>normalizePeriod(e.period)))].sort((a,b)=>a.localeCompare(b,'ko',{numeric:true}));
+    for(const target of ['examTimetable','studentTimetable']){
+      const wrap=document.getElementById(target);wrap.replaceChildren();
+      if(dates.length&&periods.length){
+        const table=document.createElement('table');table.className='timetable';
+        const caption=document.createElement('caption');caption.textContent='날짜별 · 교시별 시험 과목';table.append(caption);
+        const head=document.createElement('thead');const hr=document.createElement('tr');
+        ['교시',...dates].forEach(text=>{const th=document.createElement('th');th.scope='col';th.textContent=text;hr.append(th);});head.append(hr);table.append(head);
+        const body=document.createElement('tbody');periods.forEach(period=>{const tr=document.createElement('tr');const th=document.createElement('th');th.scope='row';th.textContent=period;tr.append(th);dates.forEach(date=>{const cell=document.createElement('td');const matched=exams.filter(e=>e.date===date&&normalizePeriod(e.period)===period);cell.textContent=matched.map(e=>e.subject).join(' / ')||'—';if(matched.length>1){cell.className='conflict';cell.textContent+=' (중복 확인)';}if(target==='examTimetable'&&teacherAdminUnlocked)matched.filter(e=>isSelfStudy(e.subject)).forEach(e=>cell.append(selfStudyActions(e)));tr.append(cell);});body.append(tr);});table.append(body);wrap.append(table);
+      }else{const p=document.createElement('p');p.className='empty-state';p.textContent='과목의 날짜와 교시를 입력하면 시간표가 표시됩니다.';wrap.append(p);}
+      const missing=exams.filter(e=>!e.date||!e.period);if(missing.length){const p=document.createElement('p');p.className='notice';p.textContent='일정 미정: '+missing.map(e=>e.subject).join(', ');wrap.append(p);if(target==='examTimetable'&&teacherAdminUnlocked)missing.filter(e=>isSelfStudy(e.subject)).forEach(e=>wrap.append(selfStudyActions(e)));}
+    }
+  }
+
+
+  document.getElementById('ddayForm').onsubmit=e=>{e.preventDefault();if(!teacherAdminUnlocked)return;const date=document.getElementById('ddayDate').value;if(!date)return;state.examDday={date,title:document.getElementById('ddayTitle').value.trim()};saveState();renderDday();document.getElementById('ddayFeedback').textContent='저장했어요. 학생 화면에 시험 D-day가 표시됩니다.';};
+  document.getElementById('ddayClear').onclick=()=>{if(!teacherAdminUnlocked)return;delete state.examDday;saveState();loadDateSettings();renderDday();document.getElementById('ddayFeedback').textContent='학생 화면에서 D-day 표시를 해제했어요.';};
+  setInterval(()=>{renderStudyProgress();renderDday();},60000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){renderStudyProgress();renderDday();}});
+
+
+  document.getElementById('contextForm').onsubmit=e=>{
+    e.preventDefault();if(!requireTeacherAdmin())return;const year=document.getElementById('schoolYear').value;const exam=document.getElementById('examSession').value;
+    if(!/^(20\d{2}|21\d{2}|2200)$/.test(year)||!Object.hasOwn(SESSION_LABELS,exam))return;
+    if(!saveState())return;
+    database.activeYear=year;database.activeExam=exam;state=openSession(year,exam);
+    studyExcludedOpen=false;plannerExcludedOpen=false;notJoinedOpen.study=false;notJoinedOpen.planner=false;clearExamForm();
+    saveState();renderAll();
+  };
+
+
+  function requireTeacherAdmin(){
+    if(teacherAdminUnlocked)return true;
+    document.getElementById('teacherAdminError').textContent='교사 관리 잠금을 먼저 해제해주세요.';
+    document.getElementById('teacherAdminPin').focus();return false;
+  }
+  function renderTeacherAdmin(){
+    const pin=getLottoPin();
+    document.getElementById('teacherAdminForm').hidden=teacherAdminUnlocked;
+    document.getElementById('teacherAdminLock').hidden=!teacherAdminUnlocked;
+    document.getElementById('contextFields').disabled=!teacherAdminUnlocked;
+    document.getElementById('rosterEdit').hidden=!teacherAdminUnlocked;
+    for(const id of ['restoreBtn','resetAllBtn'])document.getElementById(id).disabled=!teacherAdminUnlocked;
+    document.getElementById('teacherAdminStatus').textContent=teacherAdminUnlocked?'교사 로그인 중 · 명단·시험 선택·시험 로또·시험 안내를 바로 사용할 수 있습니다.':pin?'학생 추가·삭제와 학년도·시험 선택은 교사 비밀번호로 잠금을 해제한 후 가능합니다.':'처음 사용하는 경우 교사 비밀번호를 설정해주세요. 시험 안내·시험 로또와 같은 비밀번호를 사용합니다.';
+    document.getElementById('teacherAdminSubmit').textContent=pin?'잠금 해제':'교사 비밀번호 설정';
+    if(!teacherAdminUnlocked){document.getElementById('teacherAdminPin').value='';closeBackup();}
+  }
+  document.getElementById('teacherAdminForm').onsubmit=e=>{
+    e.preventDefault();const input=document.getElementById('teacherAdminPin');const value=input.value;const pin=getLottoPin();if(!value.trim())return;
+    if(pin&&pin!==value){document.getElementById('teacherAdminError').textContent='비밀번호가 맞지 않습니다.';input.select();return;}
+    if(!pin){setLottoPin(value);if(getLottoPin()!==value){document.getElementById('teacherAdminError').textContent='비밀번호를 저장하지 못했습니다.';return;}}
+    teacherAdminUnlocked=true;input.value='';document.getElementById('teacherAdminError').textContent='';renderTeacherAdmin();renderRoster();renderExams();renderLottoGate();
+  };
+  document.getElementById('teacherAdminLock').onclick=()=>{
+    teacherAdminUnlocked=false;clearExamForm();document.getElementById('teacherAdminError').textContent='';renderAll();
+  };
+
+  buildLottoHead();
+  renderAll();
+})();
+</script>
+</body>
+</html>
