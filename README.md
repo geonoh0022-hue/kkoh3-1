@@ -1,22 +1,29 @@
-# 시험기간 이벤트 — GitHub + Render
+# 시험기간 이벤트 — GitHub + Render Free + Neon Free
 
 제공받은 HTML의 화면·이벤트·명단·시험별 기록 구조를 유지하고, 기록 저장과 교사 로그인만 서버에 연결합니다.
 
 ## 파일
 - index.html: 제공받은 원본 그대로. SHA-256: 66793b3a001cdd47c64426dba90d17b10ac1fadde03e51282f8f444522ea87d3
 - server-adapter.mjs: 페이지를 제공할 때 저장·로그인 코드와 저장 안내 문구만 연결합니다.
-- server.mjs: Node.js 서버, SQLite 저장, 교사 세션 관리.
+- server.mjs: Node.js 서버, 서버 저장, 교사 세션 관리.
+- database.mjs: Neon PostgreSQL 연결. 로컬 검증에서는 SQLite를 사용합니다.
 - shared.mjs: 변경 기록 비교·충돌 감지·입력 검증.
-- render.yaml: Render Web Service와 1GB 영구 디스크 설정.
+- render.yaml: Render 무료 Web Service 설정. 유료 디스크는 만들지 않습니다.
 
-## 배포
+## 무료 배포
 1. 이 폴더의 파일 전부를 GitHub 저장소 최상위에 올립니다.
-2. Render에서 New → Blueprint를 선택하고 GitHub 저장소를 연결합니다.
-3. ADMIN_PASSWORD에 교사용 초기 비밀번호(8자 이상)를 직접 입력합니다. GitHub에 비밀번호를 올리지 마세요.
-4. 생성 화면에 표시되는 유료 서버·영구 디스크 비용을 확인하고 배포합니다.
-5. 배포된 https 주소에서 교사 로그인 후 명단과 시험 과목을 등록합니다. 학생들에게 같은 주소를 공유합니다.
+2. Neon에서 Free 플랜으로 PostgreSQL 프로젝트를 만들고 연결 문자열을 복사합니다. 학생 이름·점수·이벤트 기록은 이 데이터베이스에 저장됩니다.
+3. Render에서 New → Blueprint를 선택하고 이 GitHub 저장소를 지정합니다.
+4. DATABASE_URL에 Neon 연결 문자열을, ADMIN_PASSWORD에 교사용 초기 비밀번호(8자 이상)를 직접 입력합니다. 둘 다 GitHub에 올리지 마세요.
+5. 생성 화면의 서버 유형이 Free이고 유료 디스크가 없는지 확인한 뒤 배포합니다.
+6. 배포된 https 주소에서 교사 로그인 후 명단과 과목을 등록합니다. 학생들에게 같은 주소를 공유합니다.
 
-학생 점수·시간·플래너 기록은 /var/data/events.sqlite에 저장되어 서비스 재시작·재배포 후에도 유지됩니다. 디스크를 삭제하면 기록도 삭제됩니다. Render 무료 서비스의 임시 파일 저장은 이 구성에 사용할 수 없습니다.
+Render 서버가 잠들거나 재시작·재배포되어도 기록은 Neon에 남습니다. 무료 Render 서비스의 임시 파일시스템에는 운영 기록을 저장하지 않습니다. Render 자체 무료 Postgres는 30일 후 만료되므로 사용하지 않습니다.
+
+무료 요금제에는 한도가 있습니다. Render는 15분 동안 접속이 없으면 서버가 잠들어 다음 첫 접속이 느릴 수 있고, 워크스페이스 전체에 월 750시간의 무료 실행 시간을 제공합니다. Neon Free는 프로젝트별 저장공간 0.5GB와 월 100 CU-hours를 제공합니다. 서비스·데이터베이스를 삭제하면 기록을 잃을 수 있으므로 기존 기록 백업 기능을 사용할 수 있습니다. 유료 플랜으로 자동 변경하는 코드는 없습니다.
+
+- Render 조건: https://render.com/docs/free
+- Neon 조건: https://neon.com/docs/introduction/free-tier
 
 ## 기존 기록 가져오기
 기존 HTML에서 교사 로그인 → 기록 백업으로 JSON 파일을 받은 뒤, 배포된 사이트에서 교사 로그인 → 백업 불러오기를 사용합니다. HTML 파일 자체에는 브라우저에 저장된 이전 기록이 포함되어 있지 않습니다.
@@ -29,11 +36,12 @@
 서로 다른 학생·항목의 변경은 함께 저장됩니다. 같은 항목을 동시에 수정하면 나중 요청을 거절하고 최신 기록을 다시 불러오므로, 실패 안내가 나타나면 다시 입력해주세요. 저장 완료 안내는 서버 저장 성공 후 표시됩니다. 인터넷 연결이 필요합니다.
 
 ## 로컬 실행 및 검증
-Node.js 22.13 이상이 필요합니다. 외부 npm 패키지는 사용하지 않습니다.
+Node.js 22.13 이상이 필요합니다. PostgreSQL 드라이버 pg를 사용합니다.
 
 PowerShell:
 
 ~~~powershell
+npm install
 $env:ADMIN_PASSWORD='직접-정한-교사-비밀번호'
 npm start
 ~~~

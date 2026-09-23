@@ -2,21 +2,17 @@ services:
   - type: web
     name: exam-events-class
     runtime: node
-    plan: 0.5c-512mb
+    plan: free
     region: singapore
     buildCommand: npm install --omit=dev
     startCommand: npm start
     healthCheckPath: /health
-    disk:
-      name: exam-records
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: NODE_VERSION
         value: 22.22.0
-      - key: DATA_DIR
-        value: /var/data
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        sync: false
       - key: ADMIN_PASSWORD
         sync: false

@@ -7,7 +7,7 @@ import {createApp} from './server.mjs';
 import {diff} from './shared.mjs';
 export async function runTests(factory=createApp){
   const dir=await mkdtemp(join(tmpdir(),'exam-events-test-'));let app;
-  const start=async()=>{app=factory({dataDir:dir,adminPassword:'test-password-123'});await new Promise(r=>app.server.listen(0,'127.0.0.1',r));return 'http://127.0.0.1:'+app.server.address().port;};
+  const start=async()=>{app=await factory({dataDir:dir,adminPassword:'test-password-123'});await new Promise(r=>app.server.listen(0,'127.0.0.1',r));return 'http://127.0.0.1:'+app.server.address().port;};
   let url=await start(),cookie='',count=0;
   const request=async(route,data,teacher=false,origin=url)=>{const r=await fetch(url+route,{method:data===undefined?'GET':'POST',headers:{'Content-Type':'application/json',Origin:origin,...(teacher?{Cookie:cookie}:{})},body:data===undefined?undefined:JSON.stringify(data)});return {status:r.status,data:await r.json(),cookie:r.headers.get('set-cookie')};};
   const change=(before,after,teacher=false)=>request('/api/changes',{id:crypto.randomUUID(),ops:diff(before,after),teacher},teacher);
